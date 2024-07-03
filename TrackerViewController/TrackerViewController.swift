@@ -2,6 +2,10 @@ import UIKit
 
 final class TrackerViewController: UIViewController {
     
+    private var categories: [TrackerCategory] = []
+    private var completedTrackers: [TrackerRecord] = []
+    private var anotherCategories: [TrackerCategory] = []
+    
     private lazy var mockImageView : UIImageView = {
         let image = UIImage(named: "mockImage")
         let imageView = UIImageView(image: image)

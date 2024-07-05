@@ -1,6 +1,6 @@
 import Foundation
 
-enum Weekdays: String {
+enum Weekdays: String, CaseIterable {
     case Monday = "Понедельник"
     case Tuesday = "Вторник"
     case Wednesday = "Среда"
@@ -18,6 +18,25 @@ enum Weekdays: String {
         case .Thursday: return 5
         case .Friday: return 6
         case .Saturday: return 7
+        }
+    }
+    
+    var shortDayName: String {
+        switch self {
+        case .Monday:
+            return "Пн"
+        case .Tuesday:
+            return "Вт"
+        case .Wednesday:
+            return "Ср"
+        case .Thursday:
+            return "Чт"
+        case . Friday:
+            return "Пт"
+        case .Saturday:
+            return "Сб"
+        case .Sunday:
+            return "Вс"
         }
     }
 }

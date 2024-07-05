@@ -63,6 +63,8 @@ final class HabitOrEventViewController: UIViewController {
         stackView.addArrangedSubview(habitButton)
         stackView.addArrangedSubview(eventButton)
         
+        habitButton.addTarget(self, action: #selector(habitControllerClicked), for: .touchUpInside)
+
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -74,10 +76,10 @@ final class HabitOrEventViewController: UIViewController {
         ])
     }
     
-    @objc private func habitControllerCliked() {
+    @objc private func habitControllerClicked() {
         let viewController = HabitViewController(delegate: self)
         present(UINavigationController(rootViewController: viewController), animated:  true)
-                print("Привычка")
+        print("Привычка")
     }
 }
 

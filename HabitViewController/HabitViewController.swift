@@ -8,7 +8,7 @@ final class HabitViewController: UIViewController {
     
     weak var delegate: HabitViewControllerDelegate?
     
-    var schedule: [Weekdays] = []
+    var schedules: [Weekdays] = []
     var category: String = ""
     
     init(delegate: HabitViewControllerDelegate) {
@@ -20,7 +20,10 @@ final class HabitViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private var habit: [String] = ["Категория", "Расписание"]
+    private var habit: [(name: String, pickedSettings: String)] = [
+        (name: "Категория", pickedSettings: ""),
+        (name: "Расписание", pickedSettings: "")
+    ]
     
     private lazy var titleLabel: UILabel = {
         var label = UILabel()
@@ -37,28 +40,29 @@ final class HabitViewController: UIViewController {
         textField.textColor = .ypBlack
         textField.backgroundColor = .ypBackground
         let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
-        textField.placeholder = "Ввведите название трекера"
+        textField.placeholder = "Введите название трекера"
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
         textField.heightAnchor.constraint(equalToConstant: 75).isActive = true
         textField.leftViewMode = .always
+        textField.leftView = leftView
         textField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
     private var categoryOrScheduleTableView: UITableView = {
-            var tableView = UITableView(frame: .zero)
-            tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifer)
-            tableView.separatorStyle = .singleLine
-            tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-            tableView.layer.masksToBounds = true
-            tableView.layer.cornerRadius = 16
-            tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
-            tableView.translatesAutoresizingMaskIntoConstraints = false
-            return tableView
-        }()
+        var tableView = UITableView(frame: .zero)
+        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifer)
+        tableView.separatorStyle = .singleLine
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.layer.masksToBounds = true
+        tableView.layer.cornerRadius = 16
+        tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
     
     private lazy var restrictionLabel: UILabel = {
         let label = UILabel()
@@ -78,7 +82,7 @@ final class HabitViewController: UIViewController {
         button.tintColor = .ypRed
         button.layer.cornerRadius = 16
         button.layer.borderWidth = 1
-        cancelButton.addTarget(self, action: #selector(cancelButtonIsClicked), for: .touchUpInside)
+        button.addTarget(self, action: #selector(cancelButtonIsClicked), for: .touchUpInside)
         button.layer.borderColor = UIColor.ypRed.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -90,6 +94,7 @@ final class HabitViewController: UIViewController {
         button.backgroundColor = .ypGray
         button.tintColor = .ypWhite
         button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(createButtonClicked), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -109,6 +114,8 @@ final class HabitViewController: UIViewController {
         textField.delegate = self
         setViews()
         setUpConstraints()
+        categoryOrScheduleTableView.delegate = self
+        categoryOrScheduleTableView.dataSource = self
     }
     
     private func setViews() {
@@ -124,7 +131,7 @@ final class HabitViewController: UIViewController {
     private func setUpConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 38),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             
             textField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
@@ -163,7 +170,7 @@ final class HabitViewController: UIViewController {
     
     @objc private func createButtonClicked() {
         guard let trackerName = textField.text else { return }
-        let newHabit = Tracker(id: UUID(), name: trackerName, color: .cSelection18, emoji: "❤️️️️️️️", schedule: schedule)
+        let newHabit = Tracker(id: UUID(), name: trackerName, color: .cSelection18, emoji: "❤️️️️️️️", schedule: schedules)
         self.delegate?.createNewHabit(header: category, tracker: newHabit)
         dismiss(animated: true)
         print("Создать")
@@ -177,5 +184,40 @@ extension HabitViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension HabitViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        // /////////////
+    }
+}
+
+extension HabitViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return habit.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifer, for: indexPath) as? HabitOrEventSettingsCell else {
+            assertionFailure("Не удалось выполнить приведение к HabitOrEventSettingsCell")
+            return UITableViewCell()
+        }
+        cell.textLabel?.text = habit[indexPath.row].name
+        cell.detailTextLabel?.text = habit[indexPath.row].pickedSettings
+        cell.backgroundColor = .ypBackground
+        return cell
+    }
+}
+
+extension HabitViewController: ScheduleViewControllerDelegate {
+    func didSelectDays(_ days: [Weekdays]) {
+        schedules = days
+        let schedule = days.isEmpty ? "" : days.map { $0.shortDayName }.joined(separator: ", ")
+        habit[1].pickedSettings = schedule
+        categoryOrScheduleTableView.reloadData()
+        dismiss(animated: true)
     }
 }

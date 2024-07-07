@@ -1,6 +1,6 @@
 import UIKit
 
-final class SettingsScheduleCell: UITableViewCell {
+final class scheduleCell: UITableViewCell {
     
     static let cellIdentifier = "TableViewCell"
     
@@ -8,7 +8,7 @@ final class SettingsScheduleCell: UITableViewCell {
     
     private var weekDay: Weekdays?
     
-    private lazy var titleLabel: UILabel = {
+    private lazy var cellTitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -43,27 +43,34 @@ final class SettingsScheduleCell: UITableViewCell {
     
     func configureCell(with weekDay: Weekdays, isLastCell: Bool, isSelected: Bool) {
         self.weekDay = weekDay
-        titleLabel.text = weekDay.rawValue
+        cellTitleLabel.text = weekDay.rawValue
         separatorView.isHidden = isLastCell
         switchButton.isOn = isSelected
     }
     
     private func setupViews() {
         contentView.backgroundColor = .ypBackground
-        contentView.addSubview(titleLabel)
+        contentView.addSubview(cellTitleLabel)
         contentView.addSubview(switchButton)
         contentView.addSubview(separatorView)
     }
     
     private func setupConstraints() {
+        let contentViewHeightConstraint = contentView.heightAnchor.constraint(equalToConstant: 75)
+        contentViewHeightConstraint.isActive = true
+        
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 26),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            titleLabel.heightAnchor.constraint(equalToConstant: 22),
+            cellTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 26),
+            cellTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            cellTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            cellTitleLabel.heightAnchor.constraint(equalToConstant: 22),
+            
+            contentView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
             
             switchButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            switchButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            switchButton.centerYAnchor.constraint(equalTo: cellTitleLabel.centerYAnchor),
             
             separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -71,6 +78,7 @@ final class SettingsScheduleCell: UITableViewCell {
             separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
+
     
     @objc private func switchButtonTapped(_ sender: UISwitch) {
         guard let weekDay = weekDay else { return }

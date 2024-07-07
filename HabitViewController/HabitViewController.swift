@@ -7,6 +7,7 @@ protocol HabitViewControllerDelegate: AnyObject {
 final class HabitViewController: UIViewController {
     
     weak var delegate: HabitViewControllerDelegate?
+    weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
     
     var schedules: [Weekdays] = []
     var category: String = ""
@@ -25,7 +26,7 @@ final class HabitViewController: UIViewController {
         (name: "Расписание", pickedSettings: "")
     ]
     
-    private lazy var titleLabel: UILabel = {
+    private var titleLabel: UILabel = {
         var label = UILabel()
         label.text = "Новая привычка"
         label.textColor = .ypBlack
@@ -52,7 +53,17 @@ final class HabitViewController: UIViewController {
         return textField
     }()
     
-    private var categoryOrScheduleTableView: UITableView = {
+    private lazy var clearTextFieldButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "error_clear"), for: .normal)
+        button.frame = CGRect(x: 0, y: 0, width: 17, height: 17)
+        button.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(clearTextFieldButtonClicked), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private var habitOrScheduleTableView: UITableView = {
         var tableView = UITableView(frame: .zero)
         tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifer)
         tableView.separatorStyle = .singleLine
@@ -94,6 +105,7 @@ final class HabitViewController: UIViewController {
         button.backgroundColor = .ypGray
         button.tintColor = .ypWhite
         button.layer.cornerRadius = 16
+        button.isEnabled = false
         button.addTarget(self, action: #selector(createButtonClicked), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -111,18 +123,17 @@ final class HabitViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        textField.delegate = self
         setViews()
         setUpConstraints()
-        categoryOrScheduleTableView.delegate = self
-        categoryOrScheduleTableView.dataSource = self
+        habitOrScheduleTableView.delegate = self
+        habitOrScheduleTableView.dataSource = self
     }
     
     private func setViews() {
         view.addSubview(titleLabel)
         view.addSubview(textField)
         view.addSubview(restrictionLabel)
-        view.addSubview(categoryOrScheduleTableView)
+        view.addSubview(habitOrScheduleTableView)
         view.addSubview(buttonStackView)
         buttonStackView.addArrangedSubview(cancelButton)
         buttonStackView.addArrangedSubview(createButton)
@@ -130,8 +141,9 @@ final class HabitViewController: UIViewController {
     
     private func setUpConstraints() {
         NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 13),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            
             
             textField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
@@ -148,20 +160,42 @@ final class HabitViewController: UIViewController {
             buttonStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            categoryOrScheduleTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            categoryOrScheduleTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            categoryOrScheduleTableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
-            categoryOrScheduleTableView.heightAnchor.constraint(equalToConstant: 150)
+            habitOrScheduleTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            habitOrScheduleTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            habitOrScheduleTableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            habitOrScheduleTableView.heightAnchor.constraint(equalToConstant: 150)
         ])
     }
     
-    @objc private func textFieldChanged(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        if text.count > 38 {
-            textField.deleteBackward()
-            print("Ограничение 38 символов")
+    private func checkIfCorrect() {
+        if let text = textField.text, !text.isEmpty || !schedules.isEmpty {
+            createButton.isEnabled = true
+            createButton.backgroundColor = .ypBlack
+        } else {
+            createButton.isEnabled = false
+            createButton.backgroundColor = .ypGray
         }
     }
+    
+    @objc private func clearTextFieldButtonClicked() {
+        textField.text = ""
+        clearTextFieldButton.isHidden = true
+    }
+    
+    @objc private func textFieldChanged(_ textField: UITextField) {
+        if let text = textField.text, !text.isEmpty {
+            clearTextFieldButton.isHidden = false
+        } else {
+            clearTextFieldButton.isHidden = true
+        }
+        if textField.text!.count >= 38 {
+            restrictionLabel.isHidden = false
+        } else {
+            restrictionLabel.isHidden = true
+        }
+        checkIfCorrect()
+    }
+    
     
     @objc private func cancelButtonIsClicked() {
         dismiss(animated: true)
@@ -190,10 +224,19 @@ extension HabitViewController: UITextFieldDelegate {
 
 extension HabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        // /////////////
+            if indexPath.row == 0{
+                let viewController = CategoryViewController()
+                self.present(viewController, animated: true)
+            } else if indexPath.row == 1 {
+                let viewController = ScheduleViewController()
+                viewController.delegate = self
+                self.scheduleViewControllerDelegate?.didSelectDays(self.schedules)
+                self.present(viewController, animated: true)
+            }
+            tableView.deselectRow(at: indexPath, animated: true)
+            checkIfCorrect()
+        }
     }
-}
 
 extension HabitViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -217,7 +260,7 @@ extension HabitViewController: ScheduleViewControllerDelegate {
         schedules = days
         let schedule = days.isEmpty ? "" : days.map { $0.shortDayName }.joined(separator: ", ")
         habit[1].pickedSettings = schedule
-        categoryOrScheduleTableView.reloadData()
+        habitOrScheduleTableView.reloadData()
         dismiss(animated: true)
     }
 }

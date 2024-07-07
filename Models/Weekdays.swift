@@ -31,7 +31,7 @@ enum Weekdays: String, CaseIterable {
             return "Ср"
         case .Thursday:
             return "Чт"
-        case . Friday:
+        case .Friday:
             return "Пт"
         case .Saturday:
             return "Сб"

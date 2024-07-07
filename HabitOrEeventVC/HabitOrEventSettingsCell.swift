@@ -29,4 +29,9 @@ final class HabitOrEventSettingsCell: UITableViewCell {
             ])
         }
     
+    func configureCell(model: ConfigureModel) {
+            self.textLabel?.text = model.name
+            self.detailTextLabel?.text = model.pickedSettings
+        }
+    
 }

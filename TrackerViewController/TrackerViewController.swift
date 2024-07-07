@@ -2,7 +2,7 @@ import UIKit
 
 final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
-    private var categories: [TrackerCategory] = [TrackerCategory(header: "Домашний уют", trackersArray: [Tracker(id: UUID(), name: "Поливать растения", color: .cSelection18, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday]), Tracker(id: UUID(), name: "Бабушка прислала открытку", color: .ypGray, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])]), TrackerCategory(header: "Радостные мелочи" , trackersArray: [Tracker(id: UUID(), name: "Свидания в апреле", color: .ypBlue, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])])]
+    private var categories: [TrackerCategory] = [TrackerCategory(header: "Домашний вайб", trackersArray: [Tracker(id: UUID(), name: "Поливать растения", color: .cSelection18, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday]), Tracker(id: UUID(), name: "Бабушка прислала открытку", color: .ypGray, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])]), TrackerCategory(header: "Радостные мелочи" , trackersArray: [Tracker(id: UUID(), name: "Свидания в апреле", color: .ypBlue, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])])]
     
     private var completedTrackers: [TrackerRecord] = []
     private var visibleTrackers: [TrackerCategory] = []

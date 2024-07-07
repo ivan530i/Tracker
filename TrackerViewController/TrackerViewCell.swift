@@ -11,8 +11,8 @@ final class TrackerViewCell: UICollectionViewCell {
     private let buttonPlus = UIImage(named: "PlusButton")
     private let doneButton = UIImage(named: "ButtonDone")
     private var indexPath: IndexPath?
-    private var trackerId: UUID?
-    private var isCompleted = false
+    private var trackerId: UUID? = nil
+    private var isCompleted: Bool = false
     
     static let identifier = "trackerCell"
     
@@ -62,12 +62,14 @@ final class TrackerViewCell: UICollectionViewCell {
     }()
     
     private lazy var plusButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 17
-        button.tintColor = .white
+        button.imageEdgeInsets = UIEdgeInsets(top: 11, left: 11, bottom: 11, right: 11)
+        button.tintColor = .ypWhite
         button.backgroundColor = trackerView.backgroundColor
+        button.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -125,14 +127,33 @@ final class TrackerViewCell: UICollectionViewCell {
         self.trackerId = id
         self.textOnTrackerLabel.text = name
         self.trackerView.backgroundColor = color
-        self.plusButton.backgroundColor = color
         self.emojiLabel.text = emoji
-        self.dayLabel.text = "\(completedDays)"
-        self.plusButton.isEnabled = isEnabled
-        self.isCompleted = isCompleted
+        self.dayLabel.text = "\(completedDays.days())"
+        self.plusButton.backgroundColor = color
+        self.plusButton.tintColor = .white
+        self.plusButton.setImage(isCompleted ? doneButton : buttonPlus, for: .normal)
+        self.plusButton.alpha = isCompleted ? 0.3 : 1
         self.indexPath = indexPath
-        let image = isCompleted ? doneButton: buttonPlus
-        plusButton.setImage(image, for: .normal)
-        plusButton.alpha = isCompleted ? 0.3 : 1
+        self.isCompleted = isCompleted
+    }
+    
+    @objc private func plusButtonTapped() {
+        guard let id = trackerId, let indexPath = indexPath else { return }
+        delegate?.trackerCompleted(id: id, indexPath: indexPath)
+    }
+}
+
+extension Int {
+    func days() -> String {
+        var dayString: String
+        switch self {
+        case 1:
+            dayString = "день"
+        case 2...4:
+            dayString = "дня"
+        default:
+            dayString = "дней"
+        }
+        return "\(self) \(dayString)"
     }
 }

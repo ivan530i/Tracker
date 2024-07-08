@@ -38,8 +38,8 @@ final class TrackerViewCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.layer.masksToBounds = true
-        label.layer.cornerRadius = 12
-        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.layer.cornerRadius = 14
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.backgroundColor = .ypBackground
         label.textAlignment = .center
         label.numberOfLines = 1
@@ -100,8 +100,8 @@ final class TrackerViewCell: UICollectionViewCell {
             
             emojiLabel.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 12),
             emojiLabel.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 12),
-            emojiLabel.heightAnchor.constraint(equalToConstant: 24),
-            emojiLabel.widthAnchor.constraint(equalToConstant: 24),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 28),
+            emojiLabel.widthAnchor.constraint(equalToConstant: 28),
             
             textOnTrackerLabel.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 8),
             textOnTrackerLabel.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 12),

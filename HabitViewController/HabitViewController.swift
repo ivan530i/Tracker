@@ -141,7 +141,7 @@ final class HabitViewController: UIViewController {
     
     private func setUpConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 13),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -30),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             

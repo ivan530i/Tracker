@@ -2,7 +2,7 @@ import UIKit
 
 final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
-    private var categories: [TrackerCategory] = [TrackerCategory(header: "Домашний вайб", trackersArray: [Tracker(id: UUID(), name: "Поливать растения", color: .cSelection18, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday]), Tracker(id: UUID(), name: "Бабушка прислала открытку", color: .ypGray, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])]), TrackerCategory(header: "Радостные мелочи" , trackersArray: [Tracker(id: UUID(), name: "Свидания в апреле", color: .ypBlue, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])])]
+    private var categories: [TrackerCategory] = [TrackerCategory(header: "Домашний вайб", trackersArray: [Tracker(id: UUID(), name: "Поливать растения", color: .cSelection18, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])]), TrackerCategory(header: "Радостные мелочи" , trackersArray: [Tracker(id: UUID(), name: "Кошка заслонила камеру на созвоне", color: .cSelection2, emoji: "😻", schedule: [.Friday, .Monday]), Tracker(id: UUID(), name: "Бабушка прислала открытку в вотсапе", color: .cSelection1, emoji: "🌺", schedule: [.Friday, .Monday]), Tracker(id: UUID(), name: "Свидания в апреле", color: .cSelection14, emoji: "❤️️️️️️️", schedule: [.Friday, .Monday])])]
     
     private var completedTrackers: [TrackerRecord] = []
     private var visibleTrackers: [TrackerCategory] = []
@@ -300,7 +300,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 12, left: 16, bottom: 16, right: 16)
+        return UIEdgeInsets(top: 12, left: 16, bottom: 11, right: 16)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {

@@ -68,7 +68,6 @@ final class TrackerViewCell: UICollectionViewCell {
         button.layer.cornerRadius = 17
         button.imageEdgeInsets = UIEdgeInsets(top: 11, left: 11, bottom: 11, right: 11)
         button.tintColor = .ypWhite
-        button.backgroundColor = trackerView.backgroundColor
         button.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -133,6 +132,7 @@ final class TrackerViewCell: UICollectionViewCell {
         self.plusButton.tintColor = .white
         self.plusButton.setImage(isCompleted ? doneButton : buttonPlus, for: .normal)
         self.plusButton.alpha = isCompleted ? 0.3 : 1
+        self.plusButton.isEnabled = isEnabled
         self.indexPath = indexPath
         self.isCompleted = isCompleted
     }

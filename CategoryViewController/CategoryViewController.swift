@@ -78,6 +78,7 @@ final class CategoryViewController: UIViewController {
     }
     
     @objc private func createCategoryButtonTapped() {
-        self.dismiss(animated: true)
+        let createCategoryVC = CreateCategoryVC()
+        present(createCategoryVC, animated: true, completion: nil)
     }
 }

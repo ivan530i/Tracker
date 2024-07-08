@@ -7,6 +7,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     private var completedTrackers: [TrackerRecord] = []
     private var visibleTrackers: [TrackerCategory] = []
     
+    var currentDate: Date = Date()
+    
     private lazy var mockImageView : UIImageView = {
         let image = UIImage(named: "mockImage")
         let imageView = UIImageView(image: image)
@@ -175,7 +177,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     private func reloadVisibleCategories() {
         let calendar = Calendar.current
-        let filterWeekday = calendar.component(.weekday, from: datePicker.date)
+        let filterWeekday = calendar.component(.weekday, from: currentDate)
         let filterText = (searchBar.text ?? "").lowercased()
         visibleTrackers = categories.compactMap { category in
             let trackers = category.trackersArray.filter { tracker in
@@ -198,7 +200,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     private func reloadVisibleCategoriesSearch() {
         let calendar = Calendar.current
-        let filterWeekday = calendar.component(.weekday, from: datePicker.date)
+        let filterWeekday = calendar.component(.weekday, from: currentDate)
         let filterText = (searchBar.text ?? "").lowercased()
         
         visibleTrackers = categories.flatMap { category -> [TrackerCategory] in
@@ -221,9 +223,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     }
     
     private func reloadData() {
-        datePickerChanged()
+        reloadVisibleCategories()
     }
-    
     
     @objc private func buttonIsTapped() {
         let viewController = HabitOrEventViewController()
@@ -234,6 +235,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     @objc private func datePickerChanged() {
         nothingFoundImageView.isHidden = true
         nothingFoundLabel.isHidden = true
+        currentDate = datePicker.date
         reloadVisibleCategories()
     }
 }
@@ -352,7 +354,6 @@ extension TrackerViewController: UITextFieldDelegate {
         return true
     }
 }
-
 
 extension Date {
     var onlyDate: DateComponents {

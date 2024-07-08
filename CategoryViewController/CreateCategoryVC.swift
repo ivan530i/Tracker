@@ -19,9 +19,23 @@ final class CreateCategoryVC: UIViewController {
         button.tintColor = .ypWhite
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
-        button.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(buttonIsTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
+    }()
+    
+    private lazy var trackerTextField: UITextField = {
+        var textField = UITextField()
+        textField.placeholder = "Введите название категории"
+        textField.font = .systemFont(ofSize: 17, weight: .regular)
+        textField.layer.cornerRadius = 16
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
+        textField.leftViewMode = .always
+        textField.backgroundColor = .ypBackground
+        textField.textColor = .ypBlack
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
     }()
     
     override func viewDidLoad() {
@@ -39,16 +53,29 @@ final class CreateCategoryVC: UIViewController {
             confirmButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             confirmButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             confirmButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            confirmButton.heightAnchor.constraint(equalToConstant: 60)
+            confirmButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            trackerTextField.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 38),
+            trackerTextField.heightAnchor.constraint(equalToConstant: 75),
+            trackerTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            trackerTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
     }
     
     private func configureView() {
         view.addSubview(headerLabel)
+        view.addSubview(trackerTextField)
         view.addSubview(confirmButton)
     }
     
-    @objc private func confirmButtonTapped() {
+    @objc private func buttonIsTapped() {
         self.dismiss(animated: true)
+    }
+}
+
+extension CreateCategoryVC: UITextFieldDelegate {
+    func returnTextField(for textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

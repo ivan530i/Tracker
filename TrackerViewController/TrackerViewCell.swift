@@ -93,8 +93,9 @@ final class TrackerViewCell: UICollectionViewCell {
     
     private func setConstraints() {
         NSLayoutConstraint.activate([
-            trackerView.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor),
-            trackerView.widthAnchor.constraint(equalToConstant: 167),
+            trackerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            trackerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            trackerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             trackerView.heightAnchor.constraint(equalToConstant: 90),
             
             emojiLabel.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 12),

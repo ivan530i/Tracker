@@ -68,7 +68,11 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     }()
     
     private lazy var trackerCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 9
+        layout.headerReferenceSize = .init(width: view.frame.size.width, height: 35)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(
             TrackerViewCell.self,
             forCellWithReuseIdentifier: TrackerViewCell.identifier
@@ -148,8 +152,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
             datePicker.heightAnchor.constraint(equalToConstant: 34),
             datePicker.widthAnchor.constraint(equalToConstant: 100),
             
-            trackerCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            trackerCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            trackerCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            trackerCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             trackerCollectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 34),
             trackerCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
@@ -298,24 +302,10 @@ extension TrackerViewController: TrackerViewCellDelegate {
 extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 167, height: 148)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 12, left: 16, bottom: 11, right: 16)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let sectionInsets = UIEdgeInsets(top: 16, left: 28, bottom: 12, right: 28)
-        return CGSize(width: collectionView.bounds.width - sectionInsets.left - sectionInsets.right, height: 18)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 9
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+        let padding: CGFloat = 9
+        let availableWidth = collectionView.frame.width - padding
+        let width = availableWidth / 2
+        return CGSize(width: width, height: 148)
     }
 }
 

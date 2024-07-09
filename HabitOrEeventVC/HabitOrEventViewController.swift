@@ -1,7 +1,7 @@
 import UIKit
 
 protocol CreateTypeTrackerDelegate: AnyObject {
-    func plusTracker(tracker: Tracker, category: String, from: HabitOrEventViewController)
+    func plusTracker(tracker: Tracker, category: String, from: HabitOrEventViewController, customCategory: String?)
 }
 
 protocol TrackerCreateViewControllerDelegate: AnyObject {
@@ -69,7 +69,7 @@ final class HabitOrEventViewController: UIViewController {
         
         habitButton.addTarget(self, action: #selector(habitControllerClicked), for: .touchUpInside)
         eventButton.addTarget(self, action: #selector(eventControllerClicked), for: .touchUpInside)
-
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -86,7 +86,7 @@ final class HabitOrEventViewController: UIViewController {
         present(UINavigationController(rootViewController: viewController), animated: true)
     }
     
-    @objc private func eventControllerClicked() { 
+    @objc private func eventControllerClicked() {
         let viewController = IrregularEventViewController()
         present(UINavigationController(rootViewController: viewController), animated: true)
     }
@@ -95,7 +95,8 @@ final class HabitOrEventViewController: UIViewController {
 extension HabitOrEventViewController: HabitViewControllerDelegate {
     func createNewHabit(header: String, tracker: Tracker) {
         dismiss(animated: true)
-        delegate?.plusTracker(tracker: tracker, category: "Обязательная привычка", from: self)
+        delegate?.plusTracker(tracker: tracker, category: "Обязательная привычка", from: self, customCategory: header)
     }
 }
+
 

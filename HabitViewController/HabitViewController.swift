@@ -168,7 +168,7 @@ final class HabitViewController: UIViewController {
     }
     
     private func checkIfCorrect() {
-        if let text = textField.text, !text.isEmpty || !schedules.isEmpty {
+        if let text = textField.text, !text.isEmpty, !schedules.isEmpty, !category.isEmpty {
             createButton.isEnabled = true
             createButton.backgroundColor = .ypBlack
         } else {
@@ -188,14 +188,13 @@ final class HabitViewController: UIViewController {
         } else {
             clearTextFieldButton.isHidden = true
         }
-        if textField.text!.count >= 38 {
+        if let text = textField.text, text.count >= 38 {
             restrictionLabel.isHidden = false
         } else {
             restrictionLabel.isHidden = true
         }
         checkIfCorrect()
     }
-    
     
     @objc private func cancelButtonIsClicked() {
         dismiss(animated: true)
@@ -224,19 +223,20 @@ extension HabitViewController: UITextFieldDelegate {
 
 extension HabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            if indexPath.row == 0{
-                let viewController = CategoryViewController()
-                self.present(viewController, animated: true)
-            } else if indexPath.row == 1 {
-                let viewController = ScheduleViewController()
-                viewController.delegate = self
-                self.scheduleViewControllerDelegate?.didSelectDays(self.schedules)
-                self.present(viewController, animated: true)
-            }
-            tableView.deselectRow(at: indexPath, animated: true)
-            checkIfCorrect()
+        if indexPath.row == 0 {
+            let viewController = CategoryViewController()
+            viewController.delegate = self
+            self.present(viewController, animated: true)
+        } else if indexPath.row == 1 {
+            let viewController = ScheduleViewController()
+            viewController.delegate = self
+            self.scheduleViewControllerDelegate?.didSelectDays(self.schedules)
+            self.present(viewController, animated: true)
         }
+        tableView.deselectRow(at: indexPath, animated: true)
+        checkIfCorrect()
     }
+}
 
 extension HabitViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -262,5 +262,17 @@ extension HabitViewController: ScheduleViewControllerDelegate {
         habit[1].pickedSettings = schedule
         habitOrScheduleTableView.reloadData()
         dismiss(animated: true)
+        checkIfCorrect()
     }
 }
+
+extension HabitViewController: CategoryViewControllerDelegate {
+    func didSelectCategory(_ category: String) {
+        self.category = category
+        habit[0].pickedSettings = category
+        habitOrScheduleTableView.reloadData()
+        dismiss(animated: true)
+        checkIfCorrect()
+    }
+}
+

@@ -1,6 +1,12 @@
 import UIKit
 
+protocol CreateCategoryDelegate: AnyObject {
+    func didCreateCategory(_ category: String)
+}
+
 final class CreateCategoryVC: UIViewController {
+    
+    weak var delegate: CreateCategoryDelegate?
     
     private let headerLabel: UILabel = {
         let label = UILabel()
@@ -43,6 +49,7 @@ final class CreateCategoryVC: UIViewController {
         configureView()
         applyConstraints()
         view.backgroundColor = .ypWhite
+        trackerTextField.delegate = self
     }
     
     private func applyConstraints() {
@@ -69,12 +76,14 @@ final class CreateCategoryVC: UIViewController {
     }
     
     @objc private func buttonIsTapped() {
-        self.dismiss(animated: true)
+        guard let categoryName = trackerTextField.text else { return }
+        delegate?.didCreateCategory(categoryName)
+        dismiss(animated: true)
     }
 }
 
 extension CreateCategoryVC: UITextFieldDelegate {
-    func returnTextField(for textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }

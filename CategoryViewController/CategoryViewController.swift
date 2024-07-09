@@ -1,6 +1,13 @@
 import UIKit
 
+protocol CategoryViewControllerDelegate: AnyObject {
+    func didSelectCategory(_ category: String)
+}
+
 final class CategoryViewController: UIViewController {
+    
+    weak var delegate: CategoryViewControllerDelegate?
+    weak var habitViewController: HabitViewController?
     
     private let headerLabel: UILabel = {
         let label = UILabel()
@@ -30,7 +37,7 @@ final class CategoryViewController: UIViewController {
         return imageView
     }()
     
-    private let placeholderLabel: UILabel = {
+    private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
         label.text = "Привычки и события можно \nобъединить по смыслу"
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -79,6 +86,15 @@ final class CategoryViewController: UIViewController {
     
     @objc private func createCategoryButtonTapped() {
         let createCategoryVC = CreateCategoryVC()
+        createCategoryVC.delegate = self
         present(createCategoryVC, animated: true, completion: nil)
+    }
+}
+
+extension CategoryViewController: CreateCategoryDelegate {
+    func didCreateCategory(_ category: String) {
+        habitViewController?.category = category
+        delegate?.didSelectCategory(category)
+        dismiss(animated: true)
     }
 }

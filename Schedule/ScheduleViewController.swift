@@ -64,29 +64,29 @@ final class ScheduleViewController: UIViewController {
     }
     
     private func setupConstraints() {
-            var constraints = [NSLayoutConstraint]()
-            
-            constraints.append(scheduleTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30))
-            constraints.append(scheduleTableView.heightAnchor.constraint(equalToConstant: 525))
-            constraints.append(scheduleTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16))
-            constraints.append(scheduleTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16))
-            
-            constraints.append(titleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor))
-            constraints.append(titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25))
-            constraints.append(titleLabel.heightAnchor.constraint(equalToConstant: 22))
-            
-            constraints.append(doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
-            constraints.append(doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
-            constraints.append(doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16))
-            constraints.append(doneButton.heightAnchor.constraint(equalToConstant: 60))
-            
-            NSLayoutConstraint.activate(constraints)
-        }
+        var constraints = [NSLayoutConstraint]()
+        
+        constraints.append(scheduleTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30))
+        constraints.append(scheduleTableView.heightAnchor.constraint(equalToConstant: 525))
+        constraints.append(scheduleTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16))
+        constraints.append(scheduleTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16))
+        
+        constraints.append(titleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor))
+        constraints.append(titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25))
+        constraints.append(titleLabel.heightAnchor.constraint(equalToConstant: 22))
+        
+        constraints.append(doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
+        constraints.append(doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
+        constraints.append(doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16))
+        constraints.append(doneButton.heightAnchor.constraint(equalToConstant: 60))
+        
+        NSLayoutConstraint.activate(constraints)
+    }
     
     @objc private func doneButtonTapped() {
         let weekDays = Array(selectedWeekDays)
-                delegate?.didSelectDays(weekDays)
-                self.dismiss(animated: true)
+        delegate?.didSelectDays(weekDays)
+        self.dismiss(animated: true)
     }
 }
 
@@ -117,7 +117,8 @@ extension ScheduleViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: scheduleCell.cellIdentifier, for: indexPath) as? scheduleCell else {
-            fatalError("Не удалось найти ячейку ScheduleCell")
+            assertionFailure("Не удалось найти ячейку ScheduleCell")
+            return UITableViewCell()
         }
         cell.delegate = self
         cell.selectionStyle = .none

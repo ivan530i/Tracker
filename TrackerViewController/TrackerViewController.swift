@@ -310,23 +310,24 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension TrackerViewController: CreateTypeTrackerDelegate {
-    func plusTracker(tracker: Tracker, category: String, from: HabitOrEventViewController) {
+    func plusTracker(tracker: Tracker, category: String, from: HabitOrEventViewController, customCategory: String?) {
         var updatedCategory: TrackerCategory?
         var index: Int?
         
         for i in 0..<categories.count {
-            if categories[i].header == category {
+            if categories[i].header == (customCategory ?? category) {
                 updatedCategory = categories[i]
                 index = i
+                break
             }
         }
         
         if updatedCategory == nil {
-            categories.append(TrackerCategory(header: category, trackersArray: [tracker]))
+            categories.append(TrackerCategory(header: customCategory ?? category, trackersArray: [tracker]))
         } else {
             let newTrackersArray = (updatedCategory?.trackersArray ?? []) + [tracker]
             let sortedTrackersArray = newTrackersArray.sorted { $0.name < $1.name }
-            let newCategory = TrackerCategory(header: category, trackersArray: sortedTrackersArray)
+            let newCategory = TrackerCategory(header: customCategory ?? category, trackersArray: sortedTrackersArray)
             categories.remove(at: index ?? 0)
             categories.insert(newCategory, at: index ?? 0)
         }

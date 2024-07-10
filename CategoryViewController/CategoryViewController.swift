@@ -26,7 +26,6 @@ final class CategoryViewController: UIViewController {
         button.tintColor = .ypWhite
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
-        button.addTarget(self, action: #selector(createCategoryButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -53,6 +52,8 @@ final class CategoryViewController: UIViewController {
         configureView()
         applyConstraints()
         view.backgroundColor = .ypWhite
+        
+        createCategoryButton.addTarget(self, action: #selector(createCategoryButtonTapped), for: .touchUpInside)
     }
     
     private func applyConstraints() {

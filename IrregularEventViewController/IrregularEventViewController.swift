@@ -74,7 +74,6 @@ final class IrregularEventViewController: UIViewController {
         button.layer.cornerRadius = 16
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.ypRed.cgColor
-        button.addTarget(self, action: #selector(cancelButtonClicked), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -117,6 +116,8 @@ final class IrregularEventViewController: UIViewController {
         view.addSubview(buttonStackView)
         buttonStackView.addArrangedSubview(cancelButton)
         buttonStackView.addArrangedSubview(createButton)
+        
+        cancelButton.addTarget(self, action: #selector(cancelButtonClicked), for: .touchUpInside)
     }
     
     private func setUpConstraints() {

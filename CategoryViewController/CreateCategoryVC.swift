@@ -25,7 +25,6 @@ final class CreateCategoryVC: UIViewController {
         button.tintColor = .ypWhite
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
-        button.addTarget(self, action: #selector(buttonIsTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -73,6 +72,8 @@ final class CreateCategoryVC: UIViewController {
         view.addSubview(headerLabel)
         view.addSubview(trackerTextField)
         view.addSubview(confirmButton)
+        
+        confirmButton.addTarget(self, action: #selector(buttonIsTapped), for: .touchUpInside)
     }
     
     @objc private func buttonIsTapped() {

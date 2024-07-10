@@ -31,7 +31,6 @@ final class ScheduleViewController: UIViewController {
         button.tintColor = .ypWhite
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
-        button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -61,6 +60,8 @@ final class ScheduleViewController: UIViewController {
         view.addSubview(scheduleTableView)
         view.addSubview(titleLabel)
         view.addSubview(doneButton)
+        
+        doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
     }
     
     private func setupConstraints() {

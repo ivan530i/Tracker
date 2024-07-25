@@ -6,19 +6,7 @@ protocol CreateCategoryDelegate: AnyObject {
 
 final class CreateCategoryVC: UIViewController {
     
-    weak var delegate: CreateCategoryDelegate?
-    
-    private let headerLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Новая категория"
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .ypBlack
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let confirmButton: UIButton = {
+    private lazy var confirmButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Готово", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -26,6 +14,7 @@ final class CreateCategoryVC: UIViewController {
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(buttonIsTapped), for: .touchUpInside)
         return button
     }()
     
@@ -40,46 +29,53 @@ final class CreateCategoryVC: UIViewController {
         textField.textColor = .ypBlack
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.delegate = self
         return textField
     }()
     
+    weak var delegate: CreateCategoryDelegate?
+    private let dataManager = CoreDataManager.shared
+    
+    var updateCategory: ( () -> Void )?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureView()
-        applyConstraints()
+        setupUI()
+    }
+    
+    @objc private func buttonIsTapped() {
+        guard let categoryName = trackerTextField.text else { return }
+        dataManager.createNewCategory(newCategoryName: categoryName)
+        updateCategory?()
+        dismiss(animated: true)
+    }
+    
+    private func setupUI() {
+        setupNavigationController()
         view.backgroundColor = .ypWhite
-        trackerTextField.delegate = self
+        view.addSubViews([trackerTextField, confirmButton])
+        applyConstraints()
+    }
+    
+    private func setupNavigationController() {
+        title = "Новая категория"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
+        navigationController?.navigationBar.titleTextAttributes = attributes
     }
     
     private func applyConstraints() {
         NSLayoutConstraint.activate([
-            headerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            headerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 38),
+            trackerTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            trackerTextField.heightAnchor.constraint(equalToConstant: 75),
+            trackerTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            trackerTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
             confirmButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             confirmButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             confirmButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             confirmButton.heightAnchor.constraint(equalToConstant: 60),
-            
-            trackerTextField.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 38),
-            trackerTextField.heightAnchor.constraint(equalToConstant: 75),
-            trackerTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            trackerTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
-    }
-    
-    private func configureView() {
-        view.addSubview(headerLabel)
-        view.addSubview(trackerTextField)
-        view.addSubview(confirmButton)
-        
-        confirmButton.addTarget(self, action: #selector(buttonIsTapped), for: .touchUpInside)
-    }
-    
-    @objc private func buttonIsTapped() {
-        guard let categoryName = trackerTextField.text else { return }
-        delegate?.didCreateCategory(categoryName)
-        dismiss(animated: true)
     }
 }
 

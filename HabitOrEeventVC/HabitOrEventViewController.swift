@@ -98,5 +98,3 @@ extension HabitOrEventViewController: HabitViewControllerDelegate {
         delegate?.plusTracker(tracker: tracker, category: "Обязательная привычка", from: self, customCategory: header)
     }
 }
-
-

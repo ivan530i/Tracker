@@ -2,22 +2,6 @@ import UIKit
 
 final class IrregularEventViewController: UIViewController {
     
-    weak var delegate: TrackerCreateViewControllerDelegate?
-    
-    private var configure: [ConfigureModel] = [
-        ConfigureModel(name: "Категория", pickedSettings: "")
-    ]
-    
-    private var titleLabel: UILabel = {
-        var label = UILabel()
-        label.text = "Новое нерегулярное событие"
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .ypBlack
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private lazy var textNameField: UITextField = {
         var textField = UITextField()
         textField.backgroundColor = .ypBackground
@@ -33,15 +17,19 @@ final class IrregularEventViewController: UIViewController {
         return textField
     }()
     
-    private var categoryTableView: UITableView = {
+    private lazy var categoryTableView: UITableView = {
         var tableView = UITableView(frame: .zero)
-        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifer)
+        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifier)
         tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
         tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
-        tableView.separatorStyle = .singleLine
-        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorStyle = .none
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.isScrollEnabled = false
+        tableView.estimatedRowHeight = rowHeight
+        tableView.rowHeight = UITableView.automaticDimension
         return tableView
     }()
     
@@ -55,7 +43,7 @@ final class IrregularEventViewController: UIViewController {
         return button
     }()
     
-    private var createButton: UIButton = {
+    private lazy var createButton: UIButton = {
         var button = UIButton(type: .system)
         button.setTitle("Создать", for: .normal)
         button.backgroundColor = .ypGray
@@ -63,10 +51,11 @@ final class IrregularEventViewController: UIViewController {
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(createButtonClicked), for: .touchUpInside)
         return button
     }()
     
-    private var cancelButton: UIButton = {
+    private lazy var cancelButton: UIButton = {
         var button = UIButton(type: .system)
         button.setTitle("Отменить", for: .normal)
         button.backgroundColor = .ypWhite
@@ -75,16 +64,19 @@ final class IrregularEventViewController: UIViewController {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.ypRed.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(cancelButtonClicked), for: .touchUpInside)
         return button
     }()
     
-    private var buttonStackView: UIStackView = {
+    private lazy var buttonStackView: UIStackView = {
         var stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 8
         stackView.distribution = .fillEqually
         stackView.alignment = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.addArrangedSubview(cancelButton)
+        stackView.addArrangedSubview(createButton)
         return stackView
     }()
     
@@ -99,67 +91,53 @@ final class IrregularEventViewController: UIViewController {
         return label
     }()
     
+    private lazy var emojiCollection = CustomCollection(identifier: "emojiCell", collection: .emoji)
+    private lazy var colorsCollection = CustomCollection(identifier: "colorsCell", collection: .colors)
+    
+    private var configure: [ConfigureModel] = [
+        ConfigureModel(name: "Категория", pickedSettings: "")
+    ]
+    
+    private var selectedEmoji: String?
+    private var selectedColor: String?
+    private var selectedCategory = ""
+    
+    private let rowHeight = CGFloat(75)
+    
+    private let dataManager = CoreDataManager.shared
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
-        setUpViews()
-        setUpConstraints()
-        categoryTableView.delegate = self
-        categoryTableView.dataSource = self
-    }
-    
-    private func setUpViews() {
-        view.addSubview(titleLabel)
-        view.addSubview(textNameField)
-        view.addSubview(restrictionLabel)
-        view.addSubview(categoryTableView)
-        view.addSubview(buttonStackView)
-        buttonStackView.addArrangedSubview(cancelButton)
-        buttonStackView.addArrangedSubview(createButton)
-        
-        cancelButton.addTarget(self, action: #selector(cancelButtonClicked), for: .touchUpInside)
-    }
-    
-    private func setUpConstraints() {
-        NSLayoutConstraint.activate([
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -30),
-            
-            textNameField.heightAnchor.constraint(equalToConstant: 75),
-            textNameField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            textNameField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            textNameField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            
-            restrictionLabel.topAnchor.constraint(equalTo: textNameField.bottomAnchor, constant: 8),
-            restrictionLabel.leftAnchor.constraint(equalTo: textNameField.leftAnchor, constant: 28),
-            restrictionLabel.rightAnchor.constraint(equalTo: textNameField.rightAnchor, constant: -28),
-            
-            categoryTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            categoryTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            categoryTableView.topAnchor.constraint(equalTo: textNameField.bottomAnchor, constant: 24),
-            categoryTableView.heightAnchor.constraint(equalToConstant: 75),
-            
-            buttonStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            buttonStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            cancelButton.heightAnchor.constraint(equalToConstant: 60),
-            createButton.heightAnchor.constraint(equalToConstant: 60)
-        ])
-    }
-    
-    private func checkIfCorrect() {
-        if let text = textNameField.text, !text.isEmpty {
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-        } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-        }
+        setupViews()
+        setupCollectionsDataBinding()
     }
     
     @objc func cancelButtonClicked() {
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func createButtonClicked() {
+        createNewTracker()
+        returnToMainScreen()
+    }
+    
+    private func createNewTracker() {
+        guard let name = textNameField.text,
+              let color = selectedColor,
+              let emoji = selectedEmoji else {
+            print("Smth's going wrong here"); return }
+        
+        let newTask = Tracker(id: UUID(),
+                              name: name,
+                              color: color,
+                              emoji: emoji,
+                              schedule: "Пн, Вт, Ср, Чт, Пт, Сб, Вс")
+        
+        dataManager.createNewTracker(newTracker: newTask)
+    }
+    
+    private func returnToMainScreen() {
+        NotificationCenter.default.post(name: .returnToMainScreen, object: nil)
     }
     
     @objc private func clearTextFieldButtonClicked() {
@@ -178,7 +156,110 @@ final class IrregularEventViewController: UIViewController {
         } else {
             restrictionLabel.isHidden = true
         }
-        checkIfCorrect()
+        makeCreateButtonEnable()
+    }
+    
+    private func setupNavigationController() {
+        title = "Новое нерегулярное событие"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
+        navigationController?.navigationBar.titleTextAttributes = attributes
+    }
+    
+    private func setupViews() {
+        view.backgroundColor = .ypWhite
+        setupNavigationController()
+        setupScrollView()
+    }
+    
+    private func setupScrollView() {
+        
+        let screenScrollView = UIScrollView()
+        
+        view.addSubViews([screenScrollView])
+        
+        NSLayoutConstraint.activate([
+            screenScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            screenScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            screenScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            screenScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+        let contentView = UIView()
+        
+        screenScrollView.addSubViews([contentView])
+        
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: screenScrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: screenScrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: screenScrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: screenScrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: screenScrollView.widthAnchor)
+        ])
+        
+        let contentStackView = setupContentStack()
+        
+        contentView.addSubViews([contentStackView])
+        
+        NSLayoutConstraint.activate([
+            contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            contentStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            contentStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            contentStackView.widthAnchor.constraint(equalTo: contentView.widthAnchor)
+        ])
+    }
+    
+    private func setupContentStack() -> UIStackView {
+        let contentStackView = UIStackView()
+        contentStackView.axis = .vertical
+        contentStackView.distribution = .equalCentering
+        
+        let textFieldViewStack = UIStackView()
+        textFieldViewStack.axis = .vertical
+        textFieldViewStack.spacing = 8
+        [textNameField, restrictionLabel].forEach { textFieldViewStack.addArrangedSubview($0) }
+        
+        [textFieldViewStack, categoryTableView, emojiCollection,
+         colorsCollection, buttonStackView].forEach { contentStackView.addArrangedSubview($0) }
+        
+        var tableViewHeight: CGFloat {
+            rowHeight * CGFloat(configure.count)
+        }
+        
+        NSLayoutConstraint.activate([
+            textFieldViewStack.heightAnchor.constraint(equalToConstant: 75),
+            
+            categoryTableView.topAnchor.constraint(equalTo: textFieldViewStack.bottomAnchor, constant: 24),
+            categoryTableView.heightAnchor.constraint(equalToConstant: tableViewHeight),
+            
+            emojiCollection.topAnchor.constraint(equalTo: categoryTableView.bottomAnchor),
+            
+            colorsCollection.topAnchor.constraint(equalTo: emojiCollection.bottomAnchor),
+            
+            buttonStackView.topAnchor.constraint(equalTo: colorsCollection.bottomAnchor, constant: 8),
+            buttonStackView.heightAnchor.constraint(equalToConstant: 60)
+        ])
+        
+        return contentStackView
+    }
+    
+    private func makeCreateButtonEnable() {
+        if areAllFieldsFilled() {
+            createButton.isEnabled = true
+            createButton.backgroundColor = .ypBlack
+        } else {
+            createButton.isEnabled = false
+            createButton.backgroundColor = .ypGray
+        }
+    }
+    
+    private func areAllFieldsFilled() -> Bool {
+        guard let text = textNameField.text, !text.isEmpty else { return false }
+        
+        return  (!selectedCategory.isEmpty &&
+                 selectedEmoji != nil &&
+                 selectedColor != nil)
     }
 }
 
@@ -191,12 +272,22 @@ extension IrregularEventViewController: UITextFieldDelegate {
 
 extension IrregularEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 0 {
-            let viewController = CategoryViewController()
-            self.present(viewController, animated: true)
+        let viewController = CategoryViewController()
+        goToCategoryVC(viewController)
+        updateChosenCategory(viewController: viewController, indexPath: indexPath, tableView: tableView)
+    }
+    
+    private func goToCategoryVC(_ viewController: UIViewController) {
+        let navVC = UINavigationController(rootViewController: viewController)
+        present(navVC, animated: true)
+    }
+    
+    private func updateChosenCategory(viewController: CategoryViewController, indexPath: IndexPath, tableView: UITableView) {
+        viewController.updateCategory = { [weak self] categoryName in
+            guard let cell = tableView.cellForRow(at: indexPath) else { return }
+            cell.detailTextLabel?.text = categoryName
+            self?.selectedCategory = categoryName
         }
-        tableView.deselectRow(at: indexPath, animated: true)
-        checkIfCorrect()
     }
 }
 
@@ -206,7 +297,7 @@ extension IrregularEventViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifer, for: indexPath) as? HabitOrEventSettingsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifier, for: indexPath) as? HabitOrEventSettingsCell else {
             assertionFailure("Не удалось выполнить приведение к HabitOrEventSettingsCell")
             return UITableViewCell()
         }
@@ -215,5 +306,19 @@ extension IrregularEventViewController: UITableViewDataSource {
         cell.selectionStyle = .none
         cell.backgroundColor = .ypBackground
         return cell
+    }
+}
+
+extension IrregularEventViewController {
+    
+    func setupCollectionsDataBinding() {
+        emojiCollection.didSelectItem = { [weak self] selectedEmoji in
+            self?.selectedEmoji = selectedEmoji
+            self?.makeCreateButtonEnable()
+        }
+        colorsCollection.didSelectItem = { [weak self] selectedColor in
+            self?.selectedColor = selectedColor
+            self?.makeCreateButtonEnable()
+        }
     }
 }

@@ -78,7 +78,6 @@ final class scheduleCell: UITableViewCell {
             separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
-
     
     @objc private func switchButtonTapped(_ sender: UISwitch) {
         guard let weekDay = weekDay else { return }

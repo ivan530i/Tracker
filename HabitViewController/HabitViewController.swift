@@ -6,48 +6,18 @@ protocol HabitViewControllerDelegate: AnyObject {
 
 final class HabitViewController: UIViewController {
     
-    weak var delegate: HabitViewControllerDelegate?
-    weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
-    
-    var schedules: [Weekdays] = []
-    var category: String = ""
-    
-    init(delegate: HabitViewControllerDelegate) {
-        self.delegate = delegate
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private var habit: [(name: String, pickedSettings: String)] = [
-        (name: "Категория", pickedSettings: ""),
-        (name: "Расписание", pickedSettings: "")
-    ]
-    
-    private var titleLabel: UILabel = {
-        var label = UILabel()
-        label.text = "Новая привычка"
-        label.textColor = .ypBlack
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private lazy var textField: UITextField = {
-        var textField = UITextField()
+        let textField = UITextField()
         textField.textColor = .ypBlack
         textField.backgroundColor = .ypBackground
         let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
+        textField.leftView = leftView
+        textField.leftViewMode = .always
         textField.placeholder = "Введите название трекера"
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
         textField.heightAnchor.constraint(equalToConstant: 75).isActive = true
-        textField.leftViewMode = .always
-        textField.leftView = leftView
         textField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -63,15 +33,19 @@ final class HabitViewController: UIViewController {
         return button
     }()
     
-    private var habitOrScheduleTableView: UITableView = {
-        var tableView = UITableView(frame: .zero)
-        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifer)
+    private lazy var habitOrScheduleTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifier)
         tableView.separatorStyle = .singleLine
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
         tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.estimatedRowHeight = rowHeight
+        tableView.rowHeight = UITableView.automaticDimension
         return tableView
     }()
     
@@ -103,7 +77,7 @@ final class HabitViewController: UIViewController {
         var button = UIButton(type: .system)
         button.setTitle("Создать", for: .normal)
         button.backgroundColor = .ypGray
-        button.tintColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.addTarget(self, action: #selector(createButtonClicked), for: .touchUpInside)
@@ -117,64 +91,46 @@ final class HabitViewController: UIViewController {
         stackView.spacing = 8
         stackView.distribution = .fillEqually
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.addArrangedSubview(cancelButton)
+        stackView.addArrangedSubview(createButton)
         return stackView
     }()
     
+    private lazy var emojiCollection = CustomCollection(identifier: "emojiCell", collection: .emoji)
+    private lazy var colorsCollection = CustomCollection(identifier: "colorsCell", collection: .colors)
+    
+    weak var delegate: HabitViewControllerDelegate?
+    weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
+    
+    private var schedules: [Weekdays] = []
+    private var selectedEmoji: String?
+    private var selectedColor: String?
+    private let rowHeight = CGFloat(75)
+    
+    private var selectedCategory = ""
+    
+    private lazy var habit: [(name: String, pickedSettings: String)] = [
+        (name: "Категория", pickedSettings: ""),
+        (name: "Расписание", pickedSettings: "")
+    ]
+    
+    private let dataManager = CoreDataManager.shared
+    
+    init(delegate: HabitViewControllerDelegate) {
+        self.delegate = delegate
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        setupNavigationController()
         setViews()
-        setUpConstraints()
-        habitOrScheduleTableView.delegate = self
-        habitOrScheduleTableView.dataSource = self
-    }
-    
-    private func setViews() {
-        view.addSubview(titleLabel)
-        view.addSubview(textField)
-        view.addSubview(restrictionLabel)
-        view.addSubview(habitOrScheduleTableView)
-        view.addSubview(buttonStackView)
-        buttonStackView.addArrangedSubview(cancelButton)
-        buttonStackView.addArrangedSubview(createButton)
-    }
-    
-    private func setUpConstraints() {
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -30),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            
-            textField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            textField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            textField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            
-            restrictionLabel.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 8),
-            restrictionLabel.leftAnchor.constraint(equalTo: textField.leftAnchor, constant: 28),
-            restrictionLabel.rightAnchor.constraint(equalTo: textField.rightAnchor, constant: -28),
-            
-            cancelButton.heightAnchor.constraint(equalToConstant: 60),
-            createButton.heightAnchor.constraint(equalToConstant: 60),
-            
-            buttonStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            buttonStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            habitOrScheduleTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            habitOrScheduleTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            habitOrScheduleTableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
-            habitOrScheduleTableView.heightAnchor.constraint(equalToConstant: 150)
-        ])
-    }
-    
-    private func checkIfCorrect() {
-        if let text = textField.text, !text.isEmpty, !schedules.isEmpty, !category.isEmpty {
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-        } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-        }
+        setupCollectionsDataBinding()
+        setupScrollView()
     }
     
     @objc private func clearTextFieldButtonClicked() {
@@ -197,16 +153,67 @@ final class HabitViewController: UIViewController {
     }
     
     @objc private func cancelButtonIsClicked() {
-        dismiss(animated: true)
-        print("Отменить")
+        returnToMainScreen()
     }
     
     @objc private func createButtonClicked() {
-        guard let trackerName = textField.text else { return }
-        let newHabit = Tracker(id: UUID(), name: trackerName, color: .cSelection18, emoji: "❤️️️️️️️", schedule: schedules)
-        self.delegate?.createNewHabit(header: category, tracker: newHabit)
-        dismiss(animated: true)
-        print("Создать")
+        createNewTracker()
+        returnToMainScreen()
+    }
+    
+    private func createNewTracker() {
+        guard let name = textField.text,
+              let color = selectedColor,
+              let emoji = selectedEmoji else {
+            print("Smth's going wrong here"); return }
+        
+        let newTask = Tracker(id: UUID(),
+                              name: name,
+                              color: color,
+                              emoji: emoji,
+                              schedule: habit[1].pickedSettings)
+        
+        dataManager.createNewTracker(newTracker: newTask)
+    }
+    
+    private func updateCategoryFromCD() {
+        selectedCategory = dataManager.selectedCategory
+    }
+    
+    private func setupNavigationController() {
+        title = "Новая привычка"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
+        navigationController?.navigationBar.titleTextAttributes = attributes
+    }
+    
+    private func setViews() {
+        view.backgroundColor = .ypWhite
+    }
+    
+    private func checkIfCorrect() {
+        if areAllFieldsFilled() {
+            print("YES")
+            createButton.isEnabled = true
+            createButton.backgroundColor = .ypBlack
+        } else {
+            print("NO")
+            createButton.isEnabled = false
+            createButton.backgroundColor = .ypGray
+        }
+    }
+    
+    private func areAllFieldsFilled() -> Bool {
+        guard let text = textField.text, !text.isEmpty else { return false }
+        
+        return  (!selectedCategory.isEmpty &&
+                 !schedules.isEmpty &&
+                 selectedEmoji != nil &&
+                 selectedColor != nil)
+    }
+    
+    private func returnToMainScreen() {
+        NotificationCenter.default.post(name: .returnToMainScreen, object: nil)
     }
 }
 
@@ -225,16 +232,32 @@ extension HabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
             let viewController = CategoryViewController()
-            viewController.delegate = self
-            self.present(viewController, animated: true)
-        } else if indexPath.row == 1 {
-            let viewController = ScheduleViewController()
-            viewController.delegate = self
-            self.scheduleViewControllerDelegate?.didSelectDays(self.schedules)
-            self.present(viewController, animated: true)
+            goToCategoryVC(viewController)
+            updateChosenCategory(viewController: viewController, indexPath: indexPath, tableView: tableView)
+        } else {
+            goToScheduleVC()
         }
-        tableView.deselectRow(at: indexPath, animated: true)
         checkIfCorrect()
+    }
+    
+    private func updateChosenCategory(viewController: CategoryViewController, indexPath: IndexPath, tableView: UITableView) {
+        viewController.updateCategory = { [weak self] categoryName in
+            guard let cell = tableView.cellForRow(at: indexPath) else { return }
+            cell.detailTextLabel?.text = categoryName
+            self?.selectedCategory = categoryName
+        }
+    }
+    
+    private func goToCategoryVC(_ viewController: UIViewController) {
+        let navVC = UINavigationController(rootViewController: viewController)
+        present(navVC, animated: true)
+    }
+    
+    private func goToScheduleVC() {
+        let viewController = ScheduleViewController()
+        viewController.delegate = self
+        self.scheduleViewControllerDelegate?.didSelectDays(self.schedules)
+        self.present(viewController, animated: true)
     }
 }
 
@@ -244,12 +267,19 @@ extension HabitViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifer, for: indexPath) as? HabitOrEventSettingsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifier, for: indexPath) as? HabitOrEventSettingsCell else {
             assertionFailure("Не удалось выполнить приведение к HabitOrEventSettingsCell")
             return UITableViewCell()
         }
+        cell.selectionStyle = .none
         cell.textLabel?.text = habit[indexPath.row].name
-        cell.detailTextLabel?.text = habit[indexPath.row].pickedSettings
+        
+        if indexPath.row == 0 {
+            cell.detailTextLabel?.text = dataManager.selectedCategory
+        } else {
+            cell.detailTextLabel?.text = habit[indexPath.row].pickedSettings
+        }
+        
         cell.backgroundColor = .ypBackground
         return cell
     }
@@ -268,7 +298,7 @@ extension HabitViewController: ScheduleViewControllerDelegate {
 
 extension HabitViewController: CategoryViewControllerDelegate {
     func didSelectCategory(_ category: String) {
-        self.category = category
+        self.selectedCategory = category
         habit[0].pickedSettings = category
         habitOrScheduleTableView.reloadData()
         dismiss(animated: true)
@@ -276,3 +306,92 @@ extension HabitViewController: CategoryViewControllerDelegate {
     }
 }
 
+extension HabitViewController {
+    
+    func setupContentStack() -> UIStackView {
+        
+        let contentStackView = UIStackView()
+        contentStackView.axis = .vertical
+        contentStackView.distribution = .equalCentering
+        
+        let textFieldViewStack = UIStackView()
+        textFieldViewStack.axis = .vertical
+        textFieldViewStack.spacing = 8
+        [textField, restrictionLabel].forEach { textFieldViewStack.addArrangedSubview($0) }
+        
+        [textFieldViewStack, habitOrScheduleTableView, emojiCollection,
+         colorsCollection, buttonStackView].forEach { contentStackView.addArrangedSubview($0) }
+        
+        var tableViewHeight: CGFloat {
+            rowHeight * CGFloat(habit.count)
+        }
+        
+        NSLayoutConstraint.activate([
+            textFieldViewStack.heightAnchor.constraint(equalToConstant: 75),
+            
+            habitOrScheduleTableView.topAnchor.constraint(equalTo: textFieldViewStack.bottomAnchor, constant: 24),
+            habitOrScheduleTableView.heightAnchor.constraint(equalToConstant: tableViewHeight),
+            
+            emojiCollection.topAnchor.constraint(equalTo: habitOrScheduleTableView.bottomAnchor),
+            
+            colorsCollection.topAnchor.constraint(equalTo: emojiCollection.bottomAnchor),
+            
+            buttonStackView.topAnchor.constraint(equalTo: colorsCollection.bottomAnchor, constant: 8),
+            buttonStackView.heightAnchor.constraint(equalToConstant: 60)
+        ])
+        
+        return contentStackView
+    }
+    
+    func setupScrollView() {
+        
+        let screenScrollView = UIScrollView()
+        
+        view.addSubViews([screenScrollView])
+        
+        NSLayoutConstraint.activate([
+            screenScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            screenScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            screenScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            screenScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+        let contentView = UIView()
+        
+        screenScrollView.addSubViews([contentView])
+        
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: screenScrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: screenScrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: screenScrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: screenScrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: screenScrollView.widthAnchor)
+        ])
+        
+        let contentStackView = setupContentStack()
+        
+        contentView.addSubViews([contentStackView])
+        
+        NSLayoutConstraint.activate([
+            contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            contentStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            contentStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            contentStackView.widthAnchor.constraint(equalTo: contentView.widthAnchor)
+        ])
+    }
+}
+
+extension HabitViewController {
+    
+    func setupCollectionsDataBinding() {
+        emojiCollection.didSelectItem = { [weak self] selectedEmoji in
+            self?.selectedEmoji = selectedEmoji
+            self?.checkIfCorrect()
+        }
+        colorsCollection.didSelectItem = { [weak self] selectedColor in
+            self?.selectedColor = selectedColor
+            self?.checkIfCorrect()
+        }
+    }
+}

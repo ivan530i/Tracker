@@ -6,14 +6,6 @@ protocol TrackerViewCellDelegate: AnyObject {
 
 final class TrackerViewCell: UICollectionViewCell {
     
-    weak var delegate: TrackerViewCellDelegate?
-    
-    private let buttonPlus = UIImage(named: "PlusButton")
-    private let doneButton = UIImage(named: "ButtonDone")
-    private var indexPath: IndexPath?
-    private var trackerId: UUID? = nil
-    private var isCompleted: Bool = false
-    
     static let identifier = "trackerCell"
     
     private lazy var trackerView: UIView = {
@@ -72,6 +64,18 @@ final class TrackerViewCell: UICollectionViewCell {
         return button
     }()
     
+    weak var delegate: TrackerViewCellDelegate?
+    private let dataManager = CoreDataManager.shared
+    
+    private let buttonPlus = UIImage(named: "PlusButton")
+    private let doneButton = UIImage(named: "ButtonDone")
+    private var indexPath: IndexPath?
+    private var trackerId = UUID()
+    private var isCompleted: Bool = false
+    private var date = Date()
+    
+    var dataUpdated: ( () -> Void )?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setViews()
@@ -123,38 +127,34 @@ final class TrackerViewCell: UICollectionViewCell {
         ])
     }
     
-    func setupCell(id: UUID, name: String, color: UIColor, emoji: String, completedDays: Int, isEnabled: Bool, isCompleted: Bool, indexPath: IndexPath) {
+    func setupCell(id: UUID, name: String?, color: String?, emoji: String?, completedDays: Int, isEnabled: Bool, isCompleted: Bool, indexPath: IndexPath, date: Date) {
+        guard let color else { return }
+        let cellColor = UIColor(hex: color)
+        
         self.trackerId = id
         self.textOnTrackerLabel.text = name
-        self.trackerView.backgroundColor = color
+        self.trackerView.backgroundColor = cellColor
         self.emojiLabel.text = emoji
         self.dayLabel.text = "\(completedDays.days())"
-        self.plusButton.backgroundColor = color
+        self.plusButton.backgroundColor = cellColor
         self.plusButton.tintColor = .white
         self.plusButton.setImage(isCompleted ? doneButton : buttonPlus, for: .normal)
         self.plusButton.alpha = isCompleted ? 0.3 : 1
         self.plusButton.isEnabled = isEnabled
         self.indexPath = indexPath
         self.isCompleted = isCompleted
+        self.date = date
     }
     
-    @objc private func plusButtonTapped() {
-        guard let id = trackerId, let indexPath = indexPath else { return }
-        delegate?.trackerCompleted(id: id, indexPath: indexPath)
-    }
-}
-
-extension Int {
-    func days() -> String {
-        var dayString: String
-        switch self {
-        case 1:
-            dayString = "день"
-        case 2...4:
-            dayString = "дня"
-        default:
-            dayString = "дней"
+    @objc func plusButtonTapped() {
+        if isCompleted {
+            let trackerRecordToRemove = TrackerRecord(id: trackerId, date: date)
+            dataManager.removeTrackerRecordForThisDay(trackerToRemove: trackerRecordToRemove)
+            dataUpdated?()
+        } else {
+            let trackerRecordToAdd = TrackerRecord(id: trackerId, date: date)
+            dataManager.addTrackerRecord(trackerRecordToAdd: trackerRecordToAdd)
+            dataUpdated?()
         }
-        return "\(self) \(dayString)"
     }
 }

@@ -1,11 +1,7 @@
 import UIKit
 
-protocol CategoryViewControllerDelegate: AnyObject {
-    func didSelectCategory(_ category: String)
-}
-
 final class CategoryViewController: UIViewController {
-    
+
     private lazy var categoryTableView: UITableView = {
         let table = UITableView()
         table.tableHeaderView = UIView()
@@ -15,6 +11,7 @@ final class CategoryViewController: UIViewController {
         table.dataSource = self
         table.delegate = self
         table.register(CustomCategoryCell.self, forCellReuseIdentifier: CustomCategoryCell.identifier)
+        table.rowHeight = rowHeight
         return table
     }()
     
@@ -47,39 +44,38 @@ final class CategoryViewController: UIViewController {
         return label
     }()
     
-    private let dataManager = CoreDataManager.shared
-    private var categories = [String]()
     private let rowHeight = CGFloat(75)
+    private var viewModel: CategoryViewModelProtocol
+
+    init(viewModel: CategoryViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
     
-    var updateCategory: ( (String) -> Void)?
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        getCategoriesFromCD()
-    }
-    
-    @objc private func createCategoryButtonTapped() {
-        let createCategoryVC = CreateCategoryVC()
-        let navVC = UINavigationController(rootViewController: createCategoryVC)
-        
-        createCategoryVC.updateCategory = { [weak self] in
-            self?.getCategoriesFromCD()
-            self?.categoryTableView.reloadData()
-        }
-        
-        present(navVC, animated: true)
-    }
-    
-    private func getCategoriesFromCD() {
-        let listOfCategories = dataManager.getCategoriesFromCoreData()
-        categories = [String]()
-        listOfCategories.forEach { cat in
-            guard let catName = cat.header else { return }
-            categories.append(catName)
-        }
-        print(categories)
         showOrHidePlaceholder()
+        dataBinding()
+    }
+
+    @objc private func createCategoryButtonTapped() {
+        viewModel.createButtonTapped()
+    }
+
+    private func showOrHidePlaceholder() {
+        viewModel.showOrHidePlaceholder()
+    }
+
+    private func dataBinding() {
+        viewModel.dataUpdated = { [weak self] in
+            guard let self else { print("Oooops"); return }
+            self.categoryTableView.reloadData()
+        }
     }
     
     private func setupUI() {
@@ -118,22 +114,17 @@ final class CategoryViewController: UIViewController {
     private func sendLastChosenCategoryToStore(cell: CustomCategoryCell) {
         guard let categoryNameToPass = cell.titleLabel.text else {
             print("Oooops"); return }
-        dataManager.sendLastChosenCategoryToStore(categoryName: categoryNameToPass)
-        updateCategory?(categoryNameToPass)
+        viewModel.sendLastChosenCategoryToStore(categoryNameToPass: categoryNameToPass)
     }
 }
 
-extension CategoryViewController {
-    func showOrHidePlaceholder() {
-        if categories.isEmpty {
-            showPlaceholder()
-        } else {
-            hidePlaceholder()
-        }
+extension CategoryViewController: CategoryViewControllerProtocol {
+
+    func showScreen(_ screen: UINavigationController) {
+        present(screen, animated: true)
     }
     
-    private func showPlaceholder() {
-        
+    func showPlaceholder() {
         placeholderImageView.isHidden = false
         placeholderLabel.isHidden = false
         
@@ -154,26 +145,16 @@ extension CategoryViewController {
         ])
     }
     
-    private func hidePlaceholder() {
+    func hidePlaceholder() {
         placeholderImageView.isHidden = true
         placeholderLabel.isHidden = true
     }
 }
 
-extension CategoryViewController: CreateCategoryDelegate {
-    func didCreateCategory(_ category: String) {
-        dismiss(animated: true)
-    }
-}
-
 extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        rowHeight
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categories.count
+        viewModel.getCategoryCount()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -183,7 +164,7 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
                 as? CustomCategoryCell else { print("We have problems with cell")
             return UITableViewCell()
         }
-        let cellViewModel = categories[indexPath.row]
+        let cellViewModel = viewModel.getCategoryName(indexPath)
         cell.configureCell(viewModelCategories: cellViewModel)
         return cell
     }
@@ -203,8 +184,9 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
-        let radius: CGFloat = 16
-        
+        let radius = CGFloat(16)
+        let categoryCount = viewModel.getCategoryCount()
+
         if numberOfRows == 1 {
             cell.layer.cornerRadius = radius
             cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)
@@ -216,7 +198,7 @@ extension CategoryViewController: UITableViewDataSource, UITableViewDelegate {
             cell.layer.cornerRadius = radius
             cell.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
             cell.separatorInset = tableView.separatorInset
-        case categories.count - 1:
+        case categoryCount - 1:
             cell.layer.cornerRadius = radius
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
             cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)

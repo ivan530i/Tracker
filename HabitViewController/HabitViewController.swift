@@ -1,9 +1,5 @@
 import UIKit
 
-protocol HabitViewControllerDelegate: AnyObject {
-    func createNewHabit(header: String, tracker: Tracker)
-}
-
 final class HabitViewController: UIViewController {
     
     private lazy var textField: UITextField = {
@@ -231,21 +227,20 @@ extension HabitViewController: UITextFieldDelegate {
 extension HabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            let viewController = CategoryViewController()
+            let viewModel = CategoryViewModel()
+            let viewController = CategoryViewController(viewModel: viewModel)
+            viewModel.view = viewController
             goToCategoryVC(viewController)
-            updateChosenCategory(viewController: viewController, indexPath: indexPath, tableView: tableView)
+            
+            viewModel.updateCategory = { [weak self] categoryName in
+                guard let cell = tableView.cellForRow(at: indexPath) else { return }
+                cell.detailTextLabel?.text = categoryName
+                self?.selectedCategory = categoryName
+            }
         } else {
             goToScheduleVC()
         }
         checkIfCorrect()
-    }
-    
-    private func updateChosenCategory(viewController: CategoryViewController, indexPath: IndexPath, tableView: UITableView) {
-        viewController.updateCategory = { [weak self] categoryName in
-            guard let cell = tableView.cellForRow(at: indexPath) else { return }
-            cell.detailTextLabel?.text = categoryName
-            self?.selectedCategory = categoryName
-        }
     }
     
     private func goToCategoryVC(_ viewController: UIViewController) {
@@ -290,16 +285,6 @@ extension HabitViewController: ScheduleViewControllerDelegate {
         schedules = days
         let schedule = days.isEmpty ? "" : days.map { $0.shortDayName }.joined(separator: ", ")
         habit[1].pickedSettings = schedule
-        habitOrScheduleTableView.reloadData()
-        dismiss(animated: true)
-        checkIfCorrect()
-    }
-}
-
-extension HabitViewController: CategoryViewControllerDelegate {
-    func didSelectCategory(_ category: String) {
-        self.selectedCategory = category
-        habit[0].pickedSettings = category
         habitOrScheduleTableView.reloadData()
         dismiss(animated: true)
         checkIfCorrect()

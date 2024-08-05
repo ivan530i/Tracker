@@ -272,22 +272,22 @@ extension IrregularEventViewController: UITextFieldDelegate {
 
 extension IrregularEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let viewController = CategoryViewController()
+        let viewModel = CategoryViewModel()
+        let viewController = CategoryViewController(viewModel: viewModel)
+        viewModel.view = viewController
+        
+        viewModel.updateCategory = { [weak self] categoryName in
+            guard let cell = tableView.cellForRow(at: indexPath) else { return }
+            cell.detailTextLabel?.text = categoryName
+            self?.selectedCategory = categoryName
+        }
+        
         goToCategoryVC(viewController)
-        updateChosenCategory(viewController: viewController, indexPath: indexPath, tableView: tableView)
     }
     
     private func goToCategoryVC(_ viewController: UIViewController) {
         let navVC = UINavigationController(rootViewController: viewController)
         present(navVC, animated: true)
-    }
-    
-    private func updateChosenCategory(viewController: CategoryViewController, indexPath: IndexPath, tableView: UITableView) {
-        viewController.updateCategory = { [weak self] categoryName in
-            guard let cell = tableView.cellForRow(at: indexPath) else { return }
-            cell.detailTextLabel?.text = categoryName
-            self?.selectedCategory = categoryName
-        }
     }
 }
 

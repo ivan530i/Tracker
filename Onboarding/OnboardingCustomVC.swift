@@ -6,8 +6,6 @@ final class OnboardingCustomVC: UIViewController {
     private let label = UILabel()
     private let button = UIButton()
     
-    private let userDefaults = UserDefaults.standard
-    
     init(image: String, labelText: String) {
         self.image.image = UIImage(named: image)
         self.label.text = labelText
@@ -24,7 +22,8 @@ final class OnboardingCustomVC: UIViewController {
     }
     
     @objc private func onboardingButtonTapped(_ sender: UIButton) {
-        userDefaults.set(true, forKey: Constants.UserDefaults.onboarding)
+        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.onboarding)
+        UserDefaults.standard.synchronize()
         changeRootToTabBar()
     }
     

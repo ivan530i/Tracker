@@ -2,8 +2,6 @@ import UIKit
 
 final class HabitOrEventSettingsCell: UITableViewCell {
     
-    static let cellIdentifier = "cell"
-    
     private lazy var chevronImg: UIImageView = {
         return UIImageView(image: UIImage(named: "chevron"))
     }()

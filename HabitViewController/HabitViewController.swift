@@ -31,7 +31,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var habitOrScheduleTableView: UITableView = {
         let tableView = UITableView()
-        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifier)
+        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.identifier)
         tableView.separatorStyle = .singleLine
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         tableView.layer.masksToBounds = true
@@ -262,7 +262,7 @@ extension HabitViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifier, for: indexPath) as? HabitOrEventSettingsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.identifier, for: indexPath) as? HabitOrEventSettingsCell else {
             assertionFailure("Не удалось выполнить приведение к HabitOrEventSettingsCell")
             return UITableViewCell()
         }

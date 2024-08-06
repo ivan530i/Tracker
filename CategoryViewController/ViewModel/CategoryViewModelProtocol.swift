@@ -7,6 +7,6 @@ protocol CategoryViewModelProtocol {
     func createButtonTapped()
     func getCategoryCount() -> Int
     func getCategoryName(_ indexPath: IndexPath) -> String
-    func sendLastChosenCategoryToStore(categoryNameToPass: String)
-    func showOrHidePlaceholder()
+    func categoryCellSelected(cell: CustomCategoryCell)
+    func viewDidLoad()
 }

@@ -2,8 +2,6 @@ import UIKit
 
 final class scheduleCell: UITableViewCell {
     
-    static let cellIdentifier = "TableViewCell"
-    
     weak var delegate: ScheduleCellDelegate?
     
     private var weekDay: Weekdays?

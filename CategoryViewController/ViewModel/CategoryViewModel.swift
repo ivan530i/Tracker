@@ -8,6 +8,7 @@ final class CategoryViewModel: CategoryViewModelProtocol {
     private var categories = [String]() {
         didSet {
             dataUpdated?()
+            viewDidLoad()
         }
     }
     
@@ -18,6 +19,10 @@ final class CategoryViewModel: CategoryViewModelProtocol {
         getCategoriesFromCD()
     }
     
+    func viewDidLoad() {
+        view?.isPlaceholderShown(categories.isEmpty)
+    }
+    
     func createButtonTapped() {
         let createCategoryVC = CreateCategoryVC()
         let navVC = UINavigationController(rootViewController: createCategoryVC)
@@ -25,15 +30,9 @@ final class CategoryViewModel: CategoryViewModelProtocol {
         view?.showScreen(navVC)
     }
     
-    func showOrHidePlaceholder() {
-        if categories.isEmpty {
-            view?.showPlaceholder()
-        } else {
-            view?.hidePlaceholder()
-        }
-    }
-    
-    func sendLastChosenCategoryToStore(categoryNameToPass: String) {
+    func categoryCellSelected(cell: CustomCategoryCell) {
+        guard let categoryNameToPass = cell.titleLabel.text else {
+            print("Oooops"); return }
         dataManager.sendLastChosenCategoryToStore(categoryName: categoryNameToPass)
         updateCategory?(categoryNameToPass)
     }
@@ -54,10 +53,11 @@ final class CategoryViewModel: CategoryViewModelProtocol {
     
     private func getCategoriesFromCD() {
         let listOfCategories = dataManager.getCategoriesFromCoreData()
-        categories = []
+        var newCategories = [String]()
         listOfCategories.forEach { cat in
             guard let catName = cat.header else { return }
-            categories.append(catName)
+            newCategories.append(catName)
         }
+        categories = newCategories
     }
 }

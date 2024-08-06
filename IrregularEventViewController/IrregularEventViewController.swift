@@ -19,7 +19,7 @@ final class IrregularEventViewController: UIViewController {
     
     private lazy var categoryTableView: UITableView = {
         var tableView = UITableView(frame: .zero)
-        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.cellIdentifier)
+        tableView.register(HabitOrEventSettingsCell.self, forCellReuseIdentifier: HabitOrEventSettingsCell.identifier)
         tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
         tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
@@ -69,14 +69,8 @@ final class IrregularEventViewController: UIViewController {
     }()
     
     private lazy var buttonStackView: UIStackView = {
-        var stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 8
-        stackView.distribution = .fillEqually
-        stackView.alignment = .fill
+        var stackView = UIStackView(.horizontal, .fillEqually, .fill, 8, [cancelButton, createButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubview(cancelButton)
-        stackView.addArrangedSubview(createButton)
         return stackView
     }()
     
@@ -297,7 +291,7 @@ extension IrregularEventViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.cellIdentifier, for: indexPath) as? HabitOrEventSettingsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HabitOrEventSettingsCell.identifier, for: indexPath) as? HabitOrEventSettingsCell else {
             assertionFailure("Не удалось выполнить приведение к HabitOrEventSettingsCell")
             return UITableViewCell()
         }

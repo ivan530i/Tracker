@@ -149,8 +149,9 @@ final class CoreDataManager: NSObject {
         do {
             let allTrackers = try context.fetch(fetchRequest)
             allTrackers.forEach { tracker in
-                print("Name \(tracker.name) - Schedule \(tracker.schedule)")
-                
+                guard let name = tracker.name,
+                let schedule = tracker.schedule else { return }
+                print("Name \(name) - Schedule \(schedule)")
             }
         } catch {
             print("\(error.localizedDescription) 🟥")

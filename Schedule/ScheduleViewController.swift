@@ -40,7 +40,7 @@ final class ScheduleViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.isScrollEnabled = false
         tableView.showsVerticalScrollIndicator = false
-        tableView.register(scheduleCell.self, forCellReuseIdentifier: scheduleCell.cellIdentifier)
+        tableView.register(scheduleCell.self, forCellReuseIdentifier: scheduleCell.identifier)
         tableView.backgroundColor = .ypBackground
         tableView.layer.cornerRadius = 16
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -117,7 +117,7 @@ extension ScheduleViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: scheduleCell.cellIdentifier, for: indexPath) as? scheduleCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: scheduleCell.identifier, for: indexPath) as? scheduleCell else {
             assertionFailure("Не удалось найти ячейку ScheduleCell")
             return UITableViewCell()
         }

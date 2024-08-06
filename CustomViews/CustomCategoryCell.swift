@@ -2,8 +2,6 @@ import UIKit
 
 final class CustomCategoryCell: UITableViewCell {
     
-    static let identifier = "CustomCategoryCell"
-    
     let titleLabel = UILabel()
     var checkmarkImage = UIImageView()
     
@@ -29,8 +27,7 @@ final class CustomCategoryCell: UITableViewCell {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.distribution = .fill
-        stack.addArrangedSubview(titleLabel)
-        stack.addArrangedSubview(checkmarkImage)
+        stack.addArrangedSubviews(titleLabel, checkmarkImage)
         
         contentView.addSubViews([stack])
         

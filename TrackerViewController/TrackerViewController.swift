@@ -2,6 +2,8 @@ import UIKit
 
 final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
+    var selectedFilters: String = ""
+    
     private lazy var mockImageView : UIImageView = {
         let image = UIImage(named: "mockImage")
         let imageView = UIImageView(image: image)
@@ -83,6 +85,17 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         return collectionView
     }()
     
+    private lazy var filterButton: UIButton = {
+       let button = UIButton()
+        button.setTitle(localized(text: "filters"), for: .normal)
+        button.backgroundColor = .ypBlue
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 16
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        button.addTarget(self, action: #selector(filterButtonClicked), for: .touchUpInside)
+        return button
+    }()
+    
     private let dataManager = CoreDataManager.shared
     
     private var completedTrackers: [TrackerRecord] = []
@@ -111,6 +124,11 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         reloadCollection()
     }
     
+    @objc private func filterButtonClicked(_ sender: UIButton) {
+        let viewController = UINavigationController(rootViewController: FilterViewController(delegate: self))
+        present(viewController, animated: true)
+    }
+    
     private func reloadCollection() {
         trackerCollectionView.reloadData()
     }
@@ -133,7 +151,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     private func setupViews() {
         view.backgroundColor = .ypWhite
-        view.addSubViews([trackerCollectionView, mockImageView, mockLabel, searchBar, nothingFoundImageView, nothingFoundLabel])
+        view.addSubViews([trackerCollectionView, mockImageView, mockLabel, searchBar, nothingFoundImageView, nothingFoundLabel, filterButton])
         
         setupNavigationBar()
         setupConstraints()
@@ -164,7 +182,12 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
             nothingFoundImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             nothingFoundLabel.centerXAnchor.constraint(equalTo: nothingFoundImageView.centerXAnchor),
-            nothingFoundLabel.topAnchor.constraint(equalTo: nothingFoundImageView.bottomAnchor, constant: 8)
+            nothingFoundLabel.topAnchor.constraint(equalTo: nothingFoundImageView.bottomAnchor, constant: 8),
+            
+            filterButton.heightAnchor.constraint(equalToConstant: 50),
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
     
@@ -293,5 +316,11 @@ extension TrackerViewController {
         getTrackersFromCD()
         reloadCollection()
         dismiss(animated: true)
+    }
+}
+
+extension TrackerViewController: FilterViewControllerProtocol {
+    func filterSetting(_ setting: Int) {
+
     }
 }

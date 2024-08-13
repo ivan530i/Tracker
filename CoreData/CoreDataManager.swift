@@ -259,3 +259,18 @@ extension CoreDataManager {
 extension CoreDataManager: NSFetchedResultsControllerDelegate {
     
 }
+
+extension CoreDataManager {
+
+    func getCompletedTrackersCount() -> Int {
+        let request = TrackerRecordCD.fetchRequest()
+        do {
+            let completedTrackers = try context.count(for: request)
+            return completedTrackers
+        } catch {
+            print("🟥 \(error.localizedDescription)")
+            return 0
+        }
+    }
+}
+

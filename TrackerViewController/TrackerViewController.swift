@@ -86,7 +86,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     }()
     
     private lazy var filterButton: UIButton = {
-       let button = UIButton()
+        let button = UIButton()
         button.setTitle(localized(text: "filters"), for: .normal)
         button.backgroundColor = .ypBlue
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -315,12 +315,17 @@ extension TrackerViewController {
     @objc func closeFewVCAfterCreatingTracker() {
         getTrackersFromCD()
         reloadCollection()
+        NotificationCenter.default.post(name: .trackerDataUpdated, object: nil)
         dismiss(animated: true)
     }
 }
 
 extension TrackerViewController: FilterViewControllerProtocol {
     func filterSetting(_ setting: Int) {
-
+        
     }
+}
+
+extension Notification.Name {
+    static let trackerDataUpdated = Notification.Name("trackerDataUpdated")
 }

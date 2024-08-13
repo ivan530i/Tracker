@@ -6,7 +6,7 @@ final class StatisticViewController: UIViewController {
     let gradient = CAGradientLayer()
     
     private lazy var header: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = localized(text: "statistics")
         label.font = .systemFont(ofSize: 34, weight: .bold)
@@ -61,13 +61,46 @@ final class StatisticViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         
+        setupHeader()
+        setupNotification()
         updateStatistics()
     }
     
-    private func updateStatistics() {
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateStatistics()
+    }
+    
+    private func setupHeader() {
+        view.addSubview(header)
+        NSLayoutConstraint.activate([
+            header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
+            header.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16)
+        ])
+    }
+    
+    private func setupNotification() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateStatistics),
+            name: .trackerDataUpdated,
+            object: nil
+        )
+    }
+    
+    private func removeEmptyErrorView() {
+        emptyImg.removeFromSuperview()
+        emptyLabel.removeFromSuperview()
+        
+        readyView.removeFromSuperview()
+    }
+    
+    @objc private func updateStatistics() {
+        removeEmptyErrorView()
+        
         let completedTrackersCount = CoreDataManager.shared.getCompletedTrackersCount()
         
-        if completedTrackersCount > 0 {
+        if (completedTrackersCount > 0) {
             dayCount = "\(completedTrackersCount)"
             dayCountLabel.text = dayCount
             setView()
@@ -90,20 +123,16 @@ final class StatisticViewController: UIViewController {
     }
     
     private func setView() {
-        view.addSubview(header)
         view.addSubview(readyView)
         readyView.addSubview(dayCountLabel)
         readyView.addSubview(finishedTrackers)
         NSLayoutConstraint.activate([
-            header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -4),
-            header.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            
-            readyView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 77),
+            readyView.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 16),
             readyView.heightAnchor.constraint(equalToConstant: 90),
             readyView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             readyView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            dayCountLabel.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 77),
+            dayCountLabel.topAnchor.constraint(equalTo: readyView.topAnchor, constant: 12),
             dayCountLabel.trailingAnchor.constraint(equalTo: readyView.trailingAnchor, constant: -16),
             dayCountLabel.leadingAnchor.constraint(equalTo: readyView.leadingAnchor, constant: 16),
             
@@ -113,4 +142,3 @@ final class StatisticViewController: UIViewController {
         ])
     }
 }
-

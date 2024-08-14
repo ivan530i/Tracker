@@ -2,6 +2,9 @@ import UIKit
 
 protocol TrackerViewCellDelegate: AnyObject {
     func trackerCompleted(id: UUID, indexPath: IndexPath)
+    func pinOrUnpinTracker(id: UUID)
+    func editTracker(id: UUID)
+    func deleteTracker(id: UUID)
 }
 
 final class TrackerViewCell: UICollectionViewCell {
@@ -70,7 +73,7 @@ final class TrackerViewCell: UICollectionViewCell {
     private let buttonPlus = UIImage(named: "PlusButton")
     private let doneButton = UIImage(named: "ButtonDone")
     private var indexPath: IndexPath?
-    private var trackerId = UUID()
+    var trackerId = UUID()
     private var isCompleted: Bool = false
     private var date = Date()
     
@@ -80,6 +83,9 @@ final class TrackerViewCell: UICollectionViewCell {
         super.init(frame: frame)
         setViews()
         setConstraints()
+        
+        let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
+        trackerView.addInteraction(contextMenuInteraction)
     }
     
     required init?(coder: NSCoder) {
@@ -127,6 +133,10 @@ final class TrackerViewCell: UICollectionViewCell {
         ])
     }
     
+    private func isPinned() -> Bool {
+            return CoreDataManager.shared.isTrackerPinned(id: trackerId)
+        }
+    
     func setupCell(id: UUID, name: String?, color: String?, emoji: String?, completedDays: Int, isEnabled: Bool, isCompleted: Bool, indexPath: IndexPath, date: Date) {
         guard let color else { return }
         let cellColor = UIColor(hex: color)
@@ -158,3 +168,29 @@ final class TrackerViewCell: UICollectionViewCell {
         }
     }
 }
+
+extension TrackerViewCell: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        let trackerId = self.trackerId
+
+        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let pinActionTitle = self.isPinned() ? NSLocalizedString("unpin", comment: "Unpin tracker") : NSLocalizedString("pin", comment: "Pin tracker")
+            let pinAction = UIAction(title: pinActionTitle, image: UIImage(systemName: "Pin")) { [weak self] _ in
+                self?.delegate?.pinOrUnpinTracker(id: trackerId)
+            }
+            
+            let editAction = UIAction(title: NSLocalizedString("edit", comment: "Edit tracker"), image: UIImage(systemName: "pencil")) { [weak self] _ in
+                self?.delegate?.editTracker(id: trackerId)
+            }
+            
+            let deleteAction = UIAction(title: NSLocalizedString("delete", comment: "Delete tracker"), image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+                self?.delegate?.deleteTracker(id: trackerId)
+            }
+            
+            return UIMenu(title: "", children: [pinAction, editAction, deleteAction])
+        }
+
+        return configuration
+    }
+}
+

@@ -16,7 +16,7 @@ final class CoreDataManager: NSObject {
             if let error = error as NSError? {
                 print("🔴 Unresolved error \(error), \(error.userInfo)")
             } else {
-                print("✅ CoreDate upload successfully")
+                print("✅ CoreData loaded successfully")
             }
         })
         return container
@@ -62,7 +62,6 @@ final class CoreDataManager: NSObject {
         setupTrackerFRC(request: request)
     }
     
-    
     func isCoreDataEmpty() -> Bool {
         if let sections = trackersFRC?.sections, sections.count > 0 {
             return false
@@ -75,9 +74,9 @@ final class CoreDataManager: NSObject {
         let request = TrackerCategoryCD.fetchRequest()
         do {
             categoriesFromCoreData = try context.fetch(request)
-            print("✅ Categories upload successfully")
+            print("✅ Categories uploaded successfully")
         } catch {
-            print(error.localizedDescription)
+            print("🟥 \(error.localizedDescription)")
         }
     }
     
@@ -118,7 +117,6 @@ final class CoreDataManager: NSObject {
         }
     }
     
-    
     func getdataFromCoreData(weekday: String) {
         getAllTrackersForWeekday(weekDay: weekday)
     }
@@ -133,9 +131,8 @@ final class CoreDataManager: NSObject {
         if context.hasChanges {
             do {
                 try context.save()
-            } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            } catch let error as NSError {
+                print("🟥 Error saving context: \(error), \(error.userInfo)")
             }
         }
     }
@@ -150,11 +147,60 @@ final class CoreDataManager: NSObject {
             let allTrackers = try context.fetch(fetchRequest)
             allTrackers.forEach { tracker in
                 guard let name = tracker.name,
-                let schedule = tracker.schedule else { return }
+                      let schedule = tracker.schedule else { return }
                 print("Name \(name) - Schedule \(schedule)")
             }
         } catch {
-            print("\(error.localizedDescription) 🟥")
+            print("🟥 \(error.localizedDescription)")
+        }
+    }
+    
+    func setTrackerPinned(id: UUID, pinned: Bool) {
+        let request = TrackerCD.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            if let tracker = try context.fetch(request).first {
+                tracker.isPinned = pinned
+                save()
+            }
+        } catch {
+            print("🟥 \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteTracker(id: UUID) {
+        let request = TrackerCD.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            if let tracker = try context.fetch(request).first {
+                context.delete(tracker)
+                save()
+            }
+        } catch {
+            print("🟥 \(error.localizedDescription)")
+        }
+    }
+    
+    func updateTracker(id: UUID, name: String, color: String, emoji: String, schedule: String) {
+        let tracker = fetchTracker(by: id)
+        tracker?.name = name
+        tracker?.colorHex = color
+        tracker?.emoji = emoji
+        tracker?.schedule = schedule
+        save()
+    }
+    
+    func fetchTracker(by id: UUID) -> TrackerCD? {
+        let request = TrackerCD.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            return try context.fetch(request).first
+        } catch {
+            print("🟥 \(error.localizedDescription)")
+            return nil
         }
     }
 }
@@ -179,7 +225,7 @@ extension CoreDataManager {
         do {
             return try context.count(for: request)
         } catch {
-            print("🟥\(error.localizedDescription)")
+            print("🟥 \(error.localizedDescription)")
             return 0
         }
     }
@@ -224,7 +270,7 @@ extension CoreDataManager {
             let result = try context.count(for: request)
             return result > 0
         } catch {
-            print("\(error.localizedDescription) 🟥")
+            print("🟥 \(error.localizedDescription)")
             return false
         }
     }
@@ -238,7 +284,7 @@ extension CoreDataManager {
             print("✅ All TrackerRecords deleted successfully")
             save()
         } catch {
-            print("\(error.localizedDescription) 🟥")
+            print("🟥 \(error.localizedDescription)")
         }
     }
     
@@ -251,7 +297,7 @@ extension CoreDataManager {
                 print("element.date \(String(describing: element.date)), element.id \(String(describing: element.id))")
             }
         } catch {
-            print("\(error.localizedDescription) 🟥")
+            print("🟥 \(error.localizedDescription)")
         }
     }
 }
@@ -261,7 +307,7 @@ extension CoreDataManager: NSFetchedResultsControllerDelegate {
 }
 
 extension CoreDataManager {
-
+    
     func getCompletedTrackersCount() -> Int {
         let request = TrackerRecordCD.fetchRequest()
         do {
@@ -274,3 +320,17 @@ extension CoreDataManager {
     }
 }
 
+extension CoreDataManager {
+    func isTrackerPinned(id: UUID) -> Bool {
+        let request = TrackerCD.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let result = try context.fetch(request)
+            return result.first?.isPinned ?? false
+        } catch {
+            print("🟥 \(error.localizedDescription)")
+            return false
+        }
+    }
+}

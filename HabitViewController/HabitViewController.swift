@@ -2,6 +2,9 @@ import UIKit
 
 final class HabitViewController: UIViewController {
     
+    private var trackerId: UUID?
+    private var isEditingMode = false
+    
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.textColor = .ypBlack
@@ -121,12 +124,42 @@ final class HabitViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    init(trackerId: UUID?) {
+        self.trackerId = trackerId
+        self.isEditingMode = trackerId != nil
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationController()
         setViews()
         setupCollectionsDataBinding()
         setupScrollView()
+        
+        if isEditingMode {
+            loadTrackerData()
+        }
+    }
+    
+    private func loadTrackerData() {
+        guard let trackerId = trackerId else { return }
+        
+        if let tracker = dataManager.fetchTracker(by: trackerId) {
+            textField.text = tracker.name
+            
+            selectedColor = tracker.colorHex ?? ""
+            selectedEmoji = tracker.emoji ?? ""
+            
+            habit[1].pickedSettings = tracker.schedule ?? ""
+            
+            if let category = tracker.category {
+                selectedCategory = category.header ?? ""
+            } else {
+                selectedCategory = ""
+            }
+            checkIfCorrect()
+        }
     }
     
     @objc private func clearTextFieldButtonClicked() {
@@ -153,8 +186,24 @@ final class HabitViewController: UIViewController {
     }
     
     @objc private func createButtonClicked() {
-        createNewTracker()
+        if isEditingMode {
+            updateTracker()
+        } else {
+            createNewTracker()
+        }
         returnToMainScreen()
+    }
+    
+    private func updateTracker() {
+        guard let trackerId = trackerId,
+              let name = textField.text,
+              let color = selectedColor,
+              let emoji = selectedEmoji else {
+            print("Ошибка при обновлении трекера")
+            return
+        }
+        
+        dataManager.updateTracker(id: trackerId, name: name, color: color, emoji: emoji, schedule: habit[1].pickedSettings)
     }
     
     private func createNewTracker() {
@@ -177,7 +226,13 @@ final class HabitViewController: UIViewController {
     }
     
     private func setupNavigationController() {
-        title = "Новая привычка"
+        if isEditingMode {
+            title = "Редактировать привычку"
+            createButton.setTitle("Сохранить", for: .normal)
+        } else {
+            title = "Новая привычка"
+            createButton.setTitle("Создать", for: .normal)
+        }
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
         navigationController?.navigationBar.titleTextAttributes = attributes

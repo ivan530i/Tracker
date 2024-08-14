@@ -111,8 +111,26 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         setupViews()
         setupNotification()
         getTrackersFromCD()
+        
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+            trackerCollectionView.addGestureRecognizer(longPressGesture)
     }
     
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        let point = gesture.location(in: trackerCollectionView)
+        
+        guard let indexPath = trackerCollectionView.indexPathForItem(at: point),
+              let cell = trackerCollectionView.cellForItem(at: indexPath) as? TrackerViewCell else {
+            return
+        }
+        
+        let trackerId = cell.trackerId
+        
+        if gesture.state == .began {
+            showContextMenu(for: trackerId, at: indexPath, sourceView: cell)
+        }
+    }
+
     @objc private func buttonIsTapped() {
         let viewController = HabitOrEventViewController()
         present(viewController, animated: true)
@@ -129,6 +147,32 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         present(viewController, animated: true)
     }
     
+    private func showContextMenu(for trackerId: UUID, at indexPath: IndexPath, sourceView: UIView) {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        let pinActionTitle = dataManager.isTrackerPinned(id: trackerId) ? "Открепить" : "Закрепить"
+        let pinAction = UIAlertAction(title: pinActionTitle, style: .default) { _ in
+            self.pinOrUnpinTracker(id: trackerId)
+        }
+
+        let editAction = UIAlertAction(title: "Редактировать", style: .default) { _ in
+            self.editTracker(id: trackerId)
+        }
+
+        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { _ in
+            self.deleteTracker(id: trackerId)
+        }
+
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+
+        alertController.addAction(pinAction)
+        alertController.addAction(editAction)
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+
+        present(alertController, animated: true, completion: nil)
+    }
+
     private func reloadCollection() {
         trackerCollectionView.reloadData()
     }
@@ -277,6 +321,24 @@ extension TrackerViewController: UICollectionViewDataSource {
 }
 
 extension TrackerViewController: TrackerViewCellDelegate {
+    func pinOrUnpinTracker(id: UUID) {
+        let isPinned = dataManager.isTrackerPinned(id: id)
+                dataManager.setTrackerPinned(id: id, pinned: !isPinned)
+                getTrackersFromCD()
+                reloadCollection()
+    }
+    
+    func editTracker(id: UUID) {
+        let editViewController = HabitViewController(trackerId: id)
+                present(editViewController, animated: true, completion: nil)
+    }
+    
+    func deleteTracker(id: UUID) {
+        dataManager.deleteTracker(id: id)
+                getTrackersFromCD()
+                reloadCollection()
+    }
+    
     func trackerCompleted(id: UUID, indexPath: IndexPath) {
         if let index = completedTrackers.firstIndex(where: { tracker in
             tracker.id == id && tracker.date.onlyDate == datePicker.date.onlyDate

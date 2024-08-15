@@ -12,7 +12,7 @@ final class CustomPlaceholder: UIStackView {
     
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно \nобъединить по смыслу"
+        label.text = localized(text: "categoryPlaceHolder")
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2
         label.textAlignment = .center
@@ -24,7 +24,7 @@ final class CustomPlaceholder: UIStackView {
     var labelText: String
     var imageName: String
     
-    init(labelText: String = "Привычки и события можно \nобъединить по смыслу", imageName: String = "stubIMG") {
+    init(labelText: String = "categoryPlaceHolder", imageName: String = "stubIMG") {
         self.labelText = labelText
         self.imageName = imageName
         super.init(frame: .zero)

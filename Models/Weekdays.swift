@@ -1,13 +1,17 @@
 import Foundation
 
 enum Weekdays: String, CaseIterable {
-    case Monday = "Понедельник"
-    case Tuesday = "Вторник"
-    case Wednesday = "Среда"
-    case Thursday = "Четверг"
-    case Friday = "Пятница"
-    case Saturday = "Суббота"
-    case Sunday = "Воскресенье"
+    case Monday = "monday"
+    case Tuesday = "tuesday"
+    case Wednesday = "wednesday"
+    case Thursday = "thursday"
+    case Friday = "friday"
+    case Saturday = "saturday"
+    case Sunday = "sunday"
+    
+    var localizedFullDayName: String {
+            return localized(text: self.rawValue)
+        }
     
     var calendarDayNumber: Int {
         switch self {
@@ -24,19 +28,19 @@ enum Weekdays: String, CaseIterable {
     var shortDayName: String {
         switch self {
         case .Monday:
-            return "Пн"
-        case .Tuesday:
-            return "Вт"
-        case .Wednesday:
-            return "Ср"
-        case .Thursday:
-            return "Чт"
-        case .Friday:
-            return "Пт"
-        case .Saturday:
-            return "Сб"
-        case .Sunday:
-            return "Вс"
+                    return localized(text: "mon")
+                case .Tuesday:
+                    return localized(text: "tues")
+                case .Wednesday:
+                    return localized(text: "wed")
+                case .Thursday:
+                    return localized(text: "thurs")
+                case .Friday:
+                    return localized(text: "fri")
+                case .Saturday:
+                    return localized(text: "sat")
+                case .Sunday:
+                    return localized(text: "sun")
         }
     }
 }

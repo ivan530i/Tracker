@@ -14,7 +14,7 @@ final class HabitOrEventViewController: UIViewController {
     
     private var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Создание трекера"
+        label.text = localized(text: "createTracker")
         label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
@@ -24,7 +24,7 @@ final class HabitOrEventViewController: UIViewController {
     
     private var habitButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Привычка", for: .normal)
+        button.setTitle(localized(text: "habit"), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.tintColor = .ypWhite
         button.backgroundColor = .ypBlack
@@ -37,7 +37,7 @@ final class HabitOrEventViewController: UIViewController {
     private var eventButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .ypWhite
-        button.setTitle("Нерегулярные события", for: .normal)
+        button.setTitle(localized(text: "event"), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16

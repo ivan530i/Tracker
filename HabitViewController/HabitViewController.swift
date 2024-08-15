@@ -12,7 +12,7 @@ final class HabitViewController: UIViewController {
         let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
         textField.leftView = leftView
         textField.leftViewMode = .always
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = localized(text: "trackerName")
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
@@ -50,7 +50,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var restrictionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = localized(text: "restrictionOf38")
         label.textColor = .ypRed
         label.font = .systemFont(ofSize: 17)
         label.isHidden = true
@@ -61,7 +61,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(localized(text: "cancel"), for: .normal)
         button.backgroundColor = .ypWhite
         button.tintColor = .ypRed
         button.layer.cornerRadius = 16
@@ -74,7 +74,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
+        button.setTitle(localized(text: "create"), for: .normal)
         button.backgroundColor = .ypGray
         button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
@@ -109,8 +109,8 @@ final class HabitViewController: UIViewController {
     private var selectedCategory = ""
     
     private lazy var habit: [(name: String, pickedSettings: String)] = [
-        (name: "Категория", pickedSettings: ""),
-        (name: "Расписание", pickedSettings: "")
+        (name: localized(text: "category"), pickedSettings: ""),
+        (name: localized(text: "schedule"), pickedSettings: "")
     ]
     
     private let dataManager = CoreDataManager.shared
@@ -227,11 +227,11 @@ final class HabitViewController: UIViewController {
     
     private func setupNavigationController() {
         if isEditingMode {
-            title = "Редактировать привычку"
-            createButton.setTitle("Сохранить", for: .normal)
+            title = localized(text: "editHabit")
+            createButton.setTitle(localized(text: "save"), for: .normal)
         } else {
-            title = "Новая привычка"
-            createButton.setTitle("Создать", for: .normal)
+            title = localized(text: "newHabit")
+            createButton.setTitle(localized(text: "create"), for: .normal)
         }
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]

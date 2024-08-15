@@ -41,7 +41,7 @@ final class scheduleCell: UITableViewCell {
     
     func configureCell(with weekDay: Weekdays, isLastCell: Bool, isSelected: Bool) {
         self.weekDay = weekDay
-        cellTitleLabel.text = weekDay.rawValue
+        cellTitleLabel.text = weekDay.localizedFullDayName
         separatorView.isHidden = isLastCell
         switchButton.isOn = isSelected
     }

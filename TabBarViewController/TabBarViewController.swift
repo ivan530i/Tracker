@@ -10,13 +10,21 @@ final class TabBarController: UITabBarController {
     
     func createTrackerView() -> UINavigationController {
         let trackerViewController = TrackerViewController()
-        trackerViewController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "tracker"), tag: 0)
+        trackerViewController.tabBarItem = UITabBarItem(
+            title: localized(text: "trackerText"),
+            image: UIImage(named: "tracker"),
+            tag: 0
+        )
         return UINavigationController(rootViewController: trackerViewController)
     }
     
     func createStatisticView() -> UINavigationController {
         let statisticViewController = StatisticViewController()
-        statisticViewController.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "statistics"), tag: 1)
+        statisticViewController.tabBarItem = UITabBarItem(
+            title: localized(text: "statisticsText"),
+            image: UIImage(named: "statistics"),
+            tag: 1
+        )
         return UINavigationController(rootViewController: statisticViewController)
     }
     
@@ -25,4 +33,3 @@ final class TabBarController: UITabBarController {
         tabBar.layer.borderColor = UIColor.gray.cgColor
     }
 }
-

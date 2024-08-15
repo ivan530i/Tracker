@@ -11,11 +11,20 @@ struct MainHelper {
     }
     
     static private func dayNumberToDayString(weekDayNumber: Int?) -> String {
-        let weekDay: [Int: String] = [1: "Вс", 2: "Пн", 3: "Вт", 4: "Ср",
-                                      5: "Чт", 6: "Пт", 7: "Сб"]
-        guard let weekDayNumber = weekDayNumber,
-              let result = weekDay[weekDayNumber] else { return ""}
-        return result
+        guard let weekDayNumber = weekDayNumber else { return "" }
+                
+                let weekDay: [Int: String] = [
+                    1: localized(text: "sun"),
+                    2: localized(text: "mon"),
+                    3: localized(text: "tues"),
+                    4: localized(text: "wed"),
+                    5: localized(text: "thurs"),
+                    6: localized(text: "fri"),
+                    7: localized(text: "sat")
+                ]
+                
+                guard let result = weekDay[weekDayNumber] else { return "" }
+                return result
     }
     
     static func dateToString(date: Date) -> String {
@@ -29,7 +38,7 @@ struct MainHelper {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd.MM.yy"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.locale = Locale.current
         let dateToString = formatter.string(from: date)
         guard let shortDate = formatter.date(from: dateToString) else { return Date()}
         return shortDate

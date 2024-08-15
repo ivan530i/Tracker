@@ -15,7 +15,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         let label = UILabel()
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.text = "Что будем отслеживать?"
+        label.text = localized(text: "emptyTracker")
         label.numberOfLines = 2
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -32,7 +32,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     private lazy var nothingFoundLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ничего не найдено"
+        label.text = localized(text: "emptySearch")
         label.numberOfLines = 2
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .black
@@ -44,7 +44,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     private lazy var searchBar: UISearchTextField = {
         let textField = UISearchTextField()
-        textField.placeholder = "Поиск"
+        textField.placeholder = localized(text: "search")
         textField.backgroundColor = .clear
         textField.font = .systemFont(ofSize: 17, weight: .medium)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -150,20 +150,20 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     private func showContextMenu(for trackerId: UUID, at indexPath: IndexPath, sourceView: UIView) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        let pinActionTitle = dataManager.isTrackerPinned(id: trackerId) ? "Открепить" : "Закрепить"
+        let pinActionTitle = dataManager.isTrackerPinned(id: trackerId) ? localized(text: "unpin") : localized(text: "pin")
         let pinAction = UIAlertAction(title: pinActionTitle, style: .default) { _ in
             self.pinOrUnpinTracker(id: trackerId)
         }
 
-        let editAction = UIAlertAction(title: "Редактировать", style: .default) { _ in
+        let editAction = UIAlertAction(title: localized(text: "edit"), style: .default) { _ in
             self.editTracker(id: trackerId)
         }
 
-        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { _ in
+        let deleteAction = UIAlertAction(title: localized(text: "delete"), style: .destructive) { _ in
             self.deleteTracker(id: trackerId)
         }
 
-        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: localized(text: "cancel"), style: .cancel, handler: nil)
 
         alertController.addAction(pinAction)
         alertController.addAction(editAction)
@@ -237,7 +237,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     private func setupNavigationBar() {
         guard let navigationBar = navigationController?.navigationBar else { return }
-        navigationBar.topItem?.title = "Трекеры"
+        navigationBar.topItem?.title = localized(text: "trackerText")
         navigationBar.prefersLargeTitles = true
         navigationBar.topItem?.largeTitleDisplayMode = .always
         
@@ -336,6 +336,15 @@ extension TrackerViewController: TrackerViewCellDelegate {
     func deleteTracker(id: UUID) {
         dataManager.deleteTracker(id: id)
                 getTrackersFromCD()
+        
+        if let indexPathToDelete = trackerCollectionView.indexPathsForVisibleItems.first(where: { indexPath in
+                let tracker = dataManager.trackersFRC?.object(at: indexPath)
+                return tracker?.id == id
+            }) {
+                trackerCollectionView.performBatchUpdates({
+                    trackerCollectionView.deleteItems(at: [indexPathToDelete])
+                }, completion: nil)
+            }
                 reloadCollection()
     }
     

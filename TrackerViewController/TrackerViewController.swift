@@ -1,8 +1,10 @@
 import UIKit
+import YandexMobileMetrica
 
 final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     
     var selectedFilters: String = ""
+    private let analyticsService = AnalyticsService()
     
     private lazy var mockImageView : UIImageView = {
         let image = UIImage(named: "mockImage")
@@ -116,6 +118,16 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
             trackerCollectionView.addGestureRecognizer(longPressGesture)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        analyticsService.report("open", params: ["screen": "Main"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        analyticsService.report("close", params: ["screen": "Main"])
+    }
+    
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
         let point = gesture.location(in: trackerCollectionView)
         
@@ -134,6 +146,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     @objc private func buttonIsTapped() {
         let viewController = HabitOrEventViewController()
         present(viewController, animated: true)
+        analyticsService.report("click", params: ["screen": "Main", "item": "add_tracker"])
     }
     
     @objc private func datePickerChanged(sender: UIPickerView) {
@@ -145,6 +158,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     @objc private func filterButtonClicked(_ sender: UIButton) {
         let viewController = UINavigationController(rootViewController: FilterViewController(delegate: self))
         present(viewController, animated: true)
+        analyticsService.report("click", params: ["screen": "Main", "item": "filters"])
     }
     
     private func showContextMenu(for trackerId: UUID, at indexPath: IndexPath, sourceView: UIView) {
@@ -335,17 +349,18 @@ extension TrackerViewController: TrackerViewCellDelegate {
     
     func deleteTracker(id: UUID) {
         dataManager.deleteTracker(id: id)
-                getTrackersFromCD()
         
         if let indexPathToDelete = trackerCollectionView.indexPathsForVisibleItems.first(where: { indexPath in
-                let tracker = dataManager.trackersFRC?.object(at: indexPath)
-                return tracker?.id == id
-            }) {
-                trackerCollectionView.performBatchUpdates({
-                    trackerCollectionView.deleteItems(at: [indexPathToDelete])
-                }, completion: nil)
-            }
-                reloadCollection()
+            let tracker = dataManager.trackersFRC?.object(at: indexPath)
+            return tracker?.id == id
+        }) {
+            trackerCollectionView.performBatchUpdates({
+                trackerCollectionView.deleteItems(at: [indexPathToDelete])
+            }, completion: nil)
+        }
+        
+        getTrackersFromCD()
+        reloadCollection()
     }
     
     func trackerCompleted(id: UUID, indexPath: IndexPath) {

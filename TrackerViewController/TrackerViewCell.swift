@@ -1,4 +1,5 @@
 import UIKit
+import YandexMobileMetrica
 
 protocol TrackerViewCellDelegate: AnyObject {
     func trackerCompleted(id: UUID, indexPath: IndexPath)
@@ -10,6 +11,7 @@ protocol TrackerViewCellDelegate: AnyObject {
 final class TrackerViewCell: UICollectionViewCell {
     
     static let identifier = "trackerCell"
+    private let analyticsService = AnalyticsService()
     
     private lazy var trackerView: UIView = {
         var view = UIView()
@@ -166,6 +168,7 @@ final class TrackerViewCell: UICollectionViewCell {
             dataManager.addTrackerRecord(trackerRecordToAdd: trackerRecordToAdd)
             dataUpdated?()
         }
+        analyticsService.report("click", params: ["screen": "Main", "item": "track"])
     }
 }
 
@@ -175,7 +178,7 @@ extension TrackerViewCell: UIContextMenuInteractionDelegate {
 
         let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let pinActionTitle = self.isPinned() ? NSLocalizedString("unpin", comment: "Unpin tracker") : NSLocalizedString("pin", comment: "Pin tracker")
-            let pinAction = UIAction(title: pinActionTitle, image: UIImage(systemName: "Pin")) { [weak self] _ in
+            let pinAction = UIAction(title: pinActionTitle, image: UIImage(systemName: "pin")) { [weak self] _ in
                 self?.delegate?.pinOrUnpinTracker(id: trackerId)
             }
             
@@ -193,4 +196,3 @@ extension TrackerViewCell: UIContextMenuInteractionDelegate {
         return configuration
     }
 }
-

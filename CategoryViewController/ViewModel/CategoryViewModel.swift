@@ -1,7 +1,10 @@
 import UIKit
 
 final class CategoryViewModel: CategoryViewModelProtocol {
-    
+    func setSelectedFilter(_ filter: IndexPath) {
+        
+    }
+
     private let dataManager = CoreDataManager.shared
     weak var view: CategoryViewControllerProtocol?
     
@@ -33,16 +36,18 @@ final class CategoryViewModel: CategoryViewModelProtocol {
     func categoryCellSelected(cell: CustomCategoryCell) {
         guard let categoryNameToPass = cell.titleLabel.text else {
             print("Oooops"); return }
-        dataManager.sendLastChosenCategoryToStore(categoryName: categoryNameToPass)
+        dataManager.setChosenCategory(categoryName: categoryNameToPass)
         updateCategory?(categoryNameToPass)
     }
     
     func getCategoryCount() -> Int {
-        categories.count
+        let correctCategories = categories.filter {$0 != "Закрепленные" }
+        return correctCategories.count
     }
     
     func getCategoryName(_ indexPath: IndexPath) -> String {
-        categories[indexPath.row]
+        let correctCategories = categories.filter {$0 != "Закрепленные" }
+        return correctCategories[indexPath.row]
     }
     
     private func createCallback(_ createCategoryVC: CreateCategoryVC) {
@@ -60,4 +65,12 @@ final class CategoryViewModel: CategoryViewModelProtocol {
         }
         categories = newCategories
     }
+
+    func sendSelectedFilterToStore(_ filter: IndexPath) {
+    }
+
+    func getSelectedFilter() -> String {
+        ""
+    }
+
 }

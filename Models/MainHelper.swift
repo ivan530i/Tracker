@@ -14,13 +14,13 @@ struct MainHelper {
         guard let weekDayNumber = weekDayNumber else { return "" }
                 
                 let weekDay: [Int: String] = [
-                    1: localized(text: "sun"),
-                    2: localized(text: "mon"),
-                    3: localized(text: "tues"),
-                    4: localized(text: "wed"),
-                    5: localized(text: "thurs"),
-                    6: localized(text: "fri"),
-                    7: localized(text: "sat")
+                    1: "sun".localizedString,
+                    2: "mon".localizedString,
+                    3: "tues".localizedString,
+                    4: "wed".localizedString,
+                    5: "thurs".localizedString,
+                    6: "fri".localizedString,
+                    7: "sat".localizedString
                 ]
                 
                 guard let result = weekDay[weekDayNumber] else { return "" }

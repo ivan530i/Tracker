@@ -12,6 +12,7 @@
 "emptySearch" = "Nothing found";
 "search" = "Search";
 "filters" = "Filters";
+"Do you really want to delete the Tracker" = "Do you really want to delete the Tracker";
 
 //HabitOrEventVC
 "createTracker" = "Creating a tracker";
@@ -78,3 +79,4 @@
 
 //IrregularEventViewController
 "newEvent" = "New irregular event";
+"Editing the tracker" = "Редактирование привычки";

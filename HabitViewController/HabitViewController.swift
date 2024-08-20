@@ -12,7 +12,7 @@ final class HabitViewController: UIViewController {
         let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
         textField.leftView = leftView
         textField.leftViewMode = .always
-        textField.placeholder = localized(text: "trackerName")
+        textField.placeholder = "trackerName".localizedString
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
@@ -50,7 +50,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var restrictionLabel: UILabel = {
         let label = UILabel()
-        label.text = localized(text: "restrictionOf38")
+        label.text = "restrictionOf38".localizedString
         label.textColor = .ypRed
         label.font = .systemFont(ofSize: 17)
         label.isHidden = true
@@ -61,7 +61,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle(localized(text: "cancel"), for: .normal)
+        button.setTitle("cancel".localizedString, for: .normal)
         button.backgroundColor = .ypWhite
         button.tintColor = .ypRed
         button.layer.cornerRadius = 16
@@ -74,7 +74,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle(localized(text: "create"), for: .normal)
+        button.setTitle("create".localizedString, for: .normal)
         button.backgroundColor = .ypGray
         button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
@@ -108,10 +108,7 @@ final class HabitViewController: UIViewController {
     
     private var selectedCategory = ""
     
-    private lazy var habit: [(name: String, pickedSettings: String)] = [
-        (name: localized(text: "category"), pickedSettings: ""),
-        (name: localized(text: "schedule"), pickedSettings: "")
-    ]
+    private lazy var habit: [(name: String, pickedSettings: String)] = ["category", "schedule"].map({ return ($0.localizedString, "")})
     
     private let dataManager = CoreDataManager.shared
     
@@ -187,23 +184,11 @@ final class HabitViewController: UIViewController {
     
     @objc private func createButtonClicked() {
         if isEditingMode {
-            updateTracker()
+//            updateTracker()
         } else {
             createNewTracker()
         }
         returnToMainScreen()
-    }
-    
-    private func updateTracker() {
-        guard let trackerId = trackerId,
-              let name = textField.text,
-              let color = selectedColor,
-              let emoji = selectedEmoji else {
-            print("Ошибка при обновлении трекера")
-            return
-        }
-        
-        dataManager.updateTracker(id: trackerId, name: name, color: color, emoji: emoji, schedule: habit[1].pickedSettings)
     }
     
     private func createNewTracker() {
@@ -226,13 +211,12 @@ final class HabitViewController: UIViewController {
     }
     
     private func setupNavigationController() {
-        if isEditingMode {
-            title = localized(text: "editHabit")
-            createButton.setTitle(localized(text: "save"), for: .normal)
-        } else {
-            title = localized(text: "newHabit")
-            createButton.setTitle(localized(text: "create"), for: .normal)
-        }
+        let text = isEditingMode ? "editHabit" : "newHabit"
+        let setTitle = isEditingMode ? "save" : "create"
+        
+        title = text.localizedString
+        createButton.setTitle(setTitle.localizedString, for: .normal)
+        
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
         navigationController?.navigationBar.titleTextAttributes = attributes
@@ -243,15 +227,9 @@ final class HabitViewController: UIViewController {
     }
     
     private func checkIfCorrect() {
-        if areAllFieldsFilled() {
-            print("YES")
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-        } else {
-            print("NO")
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-        }
+        let isOn = areAllFieldsFilled()
+        createButton.isEnabled = isOn
+        createButton.backgroundColor = isOn ? .ypBlack : .ypGray
     }
     
     private func areAllFieldsFilled() -> Bool {

@@ -50,7 +50,7 @@ final class CategoryViewController: UIViewController {
     }
     
     private func setupNavigationController() {
-        title = localized(text: "allCategories")
+        title = "allCategories".localizedString
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
         navigationController?.navigationBar.titleTextAttributes = attributes

@@ -10,6 +10,8 @@ final class CustomTableView: UITableView {
         }
     }
     
+    var didSelectHandler: ( (IndexPath) -> () )?
+    
     init(tableViewDelegate: CustomTableViewDelegate? = nil, viewModel: CategoryViewModelProtocol? = nil) {
         super.init(frame: .zero, style: .plain)
         self.tableViewDelegate = tableViewDelegate
@@ -51,13 +53,24 @@ extension CustomTableView: UITableViewDataSource, UITableViewDelegate {
         
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: CustomCategoryCell.identifier, for: indexPath)
-                as? CustomCategoryCell else { print("We have problems with cell")
+                as? CustomCategoryCell else {
             return UITableViewCell()
         }
-        guard let cellViewModel = viewModel?.getCategoryName(indexPath) else { print("123123"); return UITableViewCell()}
-        print(cellViewModel)
+        
+        guard let cellViewModel = viewModel?.getCategoryName(indexPath) else {
+            return UITableViewCell()
+        }
+        
         cell.configureCell(viewModelCategories: cellViewModel)
+        checkChosenFilter(cell)
         return cell
+    }
+    
+    private func checkChosenFilter(_ cell: CustomCategoryCell) {
+        let selectedFilter = viewModel?.getSelectedFilter()
+        if selectedFilter == cell.titleLabel.text {
+            cell.accessoryType = .checkmark
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -65,7 +78,9 @@ extension CustomTableView: UITableViewDataSource, UITableViewDelegate {
         cell.selectionStyle = .none
         cell.checkmarkImage.isHidden = false
         viewModel?.categoryCellSelected(cell: cell)
+        viewModel?.sendSelectedFilterToStore(indexPath)
         tableViewDelegate?.didSelectCategory()
+        didSelectHandler?(indexPath)
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

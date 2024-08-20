@@ -9,4 +9,7 @@ protocol CategoryViewModelProtocol {
     func getCategoryName(_ indexPath: IndexPath) -> String
     func categoryCellSelected(cell: CustomCategoryCell)
     func viewDidLoad()
+    
+    func sendSelectedFilterToStore(_ indexPath: IndexPath)
+    func getSelectedFilter() -> String
 }

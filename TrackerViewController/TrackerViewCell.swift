@@ -2,7 +2,6 @@ import UIKit
 import YandexMobileMetrica
 
 protocol TrackerViewCellDelegate: AnyObject {
-    func trackerCompleted(id: UUID, indexPath: IndexPath)
     func pinOrUnpinTracker(id: UUID)
     func editTracker(id: UUID)
     func deleteTracker(id: UUID)
@@ -10,14 +9,13 @@ protocol TrackerViewCellDelegate: AnyObject {
 
 final class TrackerViewCell: UICollectionViewCell {
     
-    static let identifier = "trackerCell"
-    private let analyticsService = AnalyticsService()
-    
     private lazy var trackerView: UIView = {
         var view = UIView()
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.masksToBounds = true
+        let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
+        view.addInteraction(contextMenuInteraction)
         return view
     }()
     
@@ -27,7 +25,7 @@ final class TrackerViewCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textAlignment = .left
         label.numberOfLines = 2
-        label.textColor = .ypWhite
+        label.textColor = .white
         return label
     }()
     
@@ -37,7 +35,7 @@ final class TrackerViewCell: UICollectionViewCell {
         label.layer.masksToBounds = true
         label.layer.cornerRadius = 14
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.backgroundColor = .ypBackground
+        label.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         label.textAlignment = .center
         label.numberOfLines = 1
         return label
@@ -46,13 +44,12 @@ final class TrackerViewCell: UICollectionViewCell {
     private lazy var dayWithButtonView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .white
         return view
     }()
     
     private lazy var dayLabel: UILabel = {
         var label = UILabel()
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
         return label
@@ -68,37 +65,80 @@ final class TrackerViewCell: UICollectionViewCell {
         button.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
         return button
     }()
-    
+
+    private lazy var pinImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "pin")
+        imageView.isHidden = true
+        return imageView
+    }()
+
+    static let identifier = "trackerCell"
+
     weak var delegate: TrackerViewCellDelegate?
+
+    private let analyticsService = AnalyticsService()
     private let dataManager = CoreDataManager.shared
     
     private let buttonPlus = UIImage(named: "PlusButton")
     private let doneButton = UIImage(named: "ButtonDone")
     private var indexPath: IndexPath?
-    var trackerId = UUID()
     private var isCompleted: Bool = false
     private var date = Date()
     
+    var trackerId = UUID()
     var dataUpdated: ( () -> Void )?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setViews()
         setConstraints()
-        
-        let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
-        trackerView.addInteraction(contextMenuInteraction)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    @objc func plusButtonTapped() {
+        if isCompleted {
+            let trackerRecordToRemove = TrackerRecord(id: trackerId, date: date)
+            dataManager.removeTrackerRecordForThisDay(trackerToRemove: trackerRecordToRemove)
+            dataUpdated?()
+        } else {
+            let trackerRecordToAdd = TrackerRecord(id: trackerId, date: date)
+            dataManager.addTrackerRecord(trackerRecordToAdd: trackerRecordToAdd)
+            dataUpdated?()
+        }
+        analyticsService.report("click", params: ["screen": "Main", "item": "track"])
+    }
+
+    func setupCell(id: UUID, name: String?, color: String?, emoji: String?, completedDays: Int, isEnabled: Bool, isCompleted: Bool, indexPath: IndexPath, date: Date, isPinned: Bool) {
+        guard let color else { return }
+        let cellColor = UIColor(hex: color)
+        let daysCompleted = String.localizedStringWithFormat("numberOfDays".localizedString, completedDays)
+
+        trackerId = id
+        textOnTrackerLabel.text = name
+        trackerView.backgroundColor = cellColor
+        emojiLabel.text = emoji
+        dayLabel.text = daysCompleted
+        plusButton.backgroundColor = cellColor
+        plusButton.setImage(isCompleted ? doneButton : buttonPlus, for: .normal)
+        plusButton.alpha = isCompleted ? 0.3 : 1
+        plusButton.isEnabled = isEnabled
+        pinImage.isHidden = !isPinned
+
+        self.indexPath = indexPath
+        self.isCompleted = isCompleted
+        self.date = date
+    }
+
     private func setViews() {
         contentView.addSubview(trackerView)
         contentView.addSubview(dayWithButtonView)
         trackerView.addSubview(emojiLabel)
         trackerView.addSubview(textOnTrackerLabel)
+        trackerView.addSubViews([pinImage])
         dayWithButtonView.addSubview(dayLabel)
         dayWithButtonView.addSubview(plusButton)
     }
@@ -119,7 +159,10 @@ final class TrackerViewCell: UICollectionViewCell {
             textOnTrackerLabel.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 12),
             textOnTrackerLabel.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -12),
             textOnTrackerLabel.bottomAnchor.constraint(equalTo: trackerView.bottomAnchor, constant: -12),
-            
+
+            pinImage.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 18),
+            pinImage.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -12),
+
             dayWithButtonView.topAnchor.constraint(equalTo: trackerView.bottomAnchor),
             dayWithButtonView.widthAnchor.constraint(equalToConstant: 167),
             dayWithButtonView.heightAnchor.constraint(equalToConstant: 58),
@@ -136,39 +179,7 @@ final class TrackerViewCell: UICollectionViewCell {
     }
     
     private func isPinned() -> Bool {
-            return CoreDataManager.shared.isTrackerPinned(id: trackerId)
-        }
-    
-    func setupCell(id: UUID, name: String?, color: String?, emoji: String?, completedDays: Int, isEnabled: Bool, isCompleted: Bool, indexPath: IndexPath, date: Date) {
-        guard let color else { return }
-        let cellColor = UIColor(hex: color)
-        
-        self.trackerId = id
-        self.textOnTrackerLabel.text = name
-        self.trackerView.backgroundColor = cellColor
-        self.emojiLabel.text = emoji
-        self.dayLabel.text = "\(completedDays.days())"
-        self.plusButton.backgroundColor = cellColor
-        self.plusButton.tintColor = .white
-        self.plusButton.setImage(isCompleted ? doneButton : buttonPlus, for: .normal)
-        self.plusButton.alpha = isCompleted ? 0.3 : 1
-        self.plusButton.isEnabled = isEnabled
-        self.indexPath = indexPath
-        self.isCompleted = isCompleted
-        self.date = date
-    }
-    
-    @objc func plusButtonTapped() {
-        if isCompleted {
-            let trackerRecordToRemove = TrackerRecord(id: trackerId, date: date)
-            dataManager.removeTrackerRecordForThisDay(trackerToRemove: trackerRecordToRemove)
-            dataUpdated?()
-        } else {
-            let trackerRecordToAdd = TrackerRecord(id: trackerId, date: date)
-            dataManager.addTrackerRecord(trackerRecordToAdd: trackerRecordToAdd)
-            dataUpdated?()
-        }
-        analyticsService.report("click", params: ["screen": "Main", "item": "track"])
+        return CoreDataManager.shared.isTrackerPinned(id: trackerId)
     }
 }
 
@@ -178,15 +189,16 @@ extension TrackerViewCell: UIContextMenuInteractionDelegate {
 
         let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let pinActionTitle = self.isPinned() ? NSLocalizedString("unpin", comment: "Unpin tracker") : NSLocalizedString("pin", comment: "Pin tracker")
-            let pinAction = UIAction(title: pinActionTitle, image: UIImage(systemName: "pin")) { [weak self] _ in
+            
+            let pinAction = UIAction(title: pinActionTitle) { [weak self] _ in
                 self?.delegate?.pinOrUnpinTracker(id: trackerId)
             }
             
-            let editAction = UIAction(title: NSLocalizedString("edit", comment: "Edit tracker"), image: UIImage(systemName: "pencil")) { [weak self] _ in
+            let editAction = UIAction(title: NSLocalizedString("edit", comment: "Edit tracker")) { [weak self] _ in
                 self?.delegate?.editTracker(id: trackerId)
             }
             
-            let deleteAction = UIAction(title: NSLocalizedString("delete", comment: "Delete tracker"), image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+            let deleteAction = UIAction(title: NSLocalizedString("delete", comment: "Delete tracker"), attributes: .destructive) { [weak self] _ in
                 self?.delegate?.deleteTracker(id: trackerId)
             }
             

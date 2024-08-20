@@ -38,8 +38,8 @@ final class OnboardingVC: UIPageViewController {
     }
     
     private func setupPageVC() {
-        let firstScreen = OnboardingCustomVC(image: "blue", labelText: localized(text: "onboardingOne"))
-        let secondScreen = OnboardingCustomVC(image: "red", labelText: localized(text: "onboardingTwo"))
+        let firstScreen = OnboardingCustomVC(image: "blue", labelText: "onboardingOne".localizedString)
+        let secondScreen = OnboardingCustomVC(image: "red", labelText: "onboardingTwo".localizedString)
         
         pages.append(firstScreen)
         pages.append(secondScreen)

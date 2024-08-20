@@ -6,7 +6,7 @@ final class IrregularEventViewController: UIViewController {
         var textField = UITextField()
         textField.backgroundColor = .ypBackground
         textField.textColor = .ypBlack
-        textField.placeholder = localized(text: "trackerName")
+        textField.placeholder = "trackerName".localizedString
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         textField.leftViewMode = .always
@@ -45,7 +45,7 @@ final class IrregularEventViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle(localized(text: "create"), for: .normal)
+        button.setTitle("create".localizedString, for: .normal)
         button.backgroundColor = .ypGray
         button.tintColor = .ypWhite
         button.layer.cornerRadius = 16
@@ -57,7 +57,7 @@ final class IrregularEventViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle(localized(text: "cancel"), for: .normal)
+        button.setTitle("cancel".localizedString, for: .normal)
         button.backgroundColor = .ypWhite
         button.tintColor = .ypRed
         button.layer.cornerRadius = 16
@@ -76,7 +76,7 @@ final class IrregularEventViewController: UIViewController {
     
     private lazy var restrictionLabel: UILabel = {
         let label = UILabel()
-        label.text = localized(text: "restrictionOf38")
+        label.text = "restrictionOf38".localizedString
         label.font = .systemFont(ofSize: 17)
         label.textColor = .ypRed
         label.textAlignment = .center
@@ -89,7 +89,7 @@ final class IrregularEventViewController: UIViewController {
     private lazy var colorsCollection = CustomCollection(identifier: "colorsCell", collection: .colors)
     
     private var configure: [ConfigureModel] = [
-        ConfigureModel(name: localized(text: "category"), pickedSettings: "")
+        ConfigureModel(name: "category".localizedString, pickedSettings: "")
     ]
     
     private var selectedEmoji: String?
@@ -122,13 +122,13 @@ final class IrregularEventViewController: UIViewController {
             print("Smth's going wrong here"); return
         }
         
-        let mon = localized(text: "mon")
-        let tues = localized(text: "tues")
-        let wed = localized(text: "wed")
-        let thurs = localized(text: "thurs")
-        let fri = localized(text: "fri")
-        let sat = localized(text: "sat")
-        let sun = localized(text: "sun")
+        let mon = "mon".localizedString
+        let tues =  "tues".localizedString
+        let wed =   "wed".localizedString
+        let thurs = "thurs".localizedString
+        let fri =   "fri".localizedString
+        let sat =   "sat".localizedString
+        let sun =   "sun".localizedString
         
         let scheduleText = "\(mon), \(tues), \(wed), \(thurs), \(fri), \(sat), \(sun)"
         
@@ -166,7 +166,7 @@ final class IrregularEventViewController: UIViewController {
     }
     
     private func setupNavigationController() {
-        title = localized(text: "newEvent")
+        title = "newEvent".localizedString
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
         navigationController?.navigationBar.titleTextAttributes = attributes

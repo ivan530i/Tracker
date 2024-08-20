@@ -4,7 +4,7 @@ final class CustomButton: UIButton {
     
     init(target: Any, action: Selector) {
         super.init(frame: .zero)
-        setTitle(localized(text: "addCategory"), for: .normal)
+        setTitle("addCategory".localizedString, for: .normal)
         titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         tintColor = .ypWhite
         backgroundColor = .ypBlack

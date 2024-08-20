@@ -10,7 +10,7 @@ enum Weekdays: String, CaseIterable {
     case Sunday = "sunday"
     
     var localizedFullDayName: String {
-            return localized(text: self.rawValue)
+            return self.rawValue.localizedString
         }
     
     var calendarDayNumber: Int {
@@ -28,19 +28,19 @@ enum Weekdays: String, CaseIterable {
     var shortDayName: String {
         switch self {
         case .Monday:
-                    return localized(text: "mon")
+                    return "mon".localizedString
                 case .Tuesday:
-                    return localized(text: "tues")
+                    return "tues".localizedString
                 case .Wednesday:
-                    return localized(text: "wed")
+                    return "wed".localizedString
                 case .Thursday:
-                    return localized(text: "thurs")
+                    return "thurs".localizedString
                 case .Friday:
-                    return localized(text: "fri")
+                    return "fri".localizedString
                 case .Saturday:
-                    return localized(text: "sat")
+                    return "sat".localizedString
                 case .Sunday:
-                    return localized(text: "sun")
+                    return  "sun".localizedString
         }
     }
 }

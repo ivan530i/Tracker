@@ -63,8 +63,8 @@
 "filters" = "Filters";
 "allTrackers" = "All trackers";
 "todayTrackers" = "Trackers for today";
-"closed" = "Completed";
-"notClosed" = "Not completed";
+"completed" = "Completed";
+"inComplete" = "Not completed";
 
 //StatisticViewController
 "emptyStat" = "There is nothing to analyze yet";

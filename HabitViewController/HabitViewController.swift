@@ -184,7 +184,6 @@ final class HabitViewController: UIViewController {
     
     @objc private func createButtonClicked() {
         if isEditingMode {
-//            updateTracker()
         } else {
             createNewTracker()
         }
@@ -364,7 +363,6 @@ extension HabitViewController {
     func setupScrollView() {
         
         let screenScrollView = UIScrollView()
-        
         view.addSubViews([screenScrollView])
         
         NSLayoutConstraint.activate([

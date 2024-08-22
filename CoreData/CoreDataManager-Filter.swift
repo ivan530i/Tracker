@@ -28,16 +28,16 @@ extension CoreDataManager {
         let predicate1 = NSPredicate(format: "id IN %@", completedTrackerId)
         let predicate2 = NSPredicate(format: "schedule CONTAINS %@", weekDay)
         let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1, predicate2])
-        let sort = NSSortDescriptor(key: "category.header", ascending: true)
 
-        updateFRC(predicate: compoundPredicate, sort: sort)
+        updateFRC(predicate: compoundPredicate)
     }
 
-    func getInCompletedTrackersWithID(completedTrackerId: [String]) {
-        let predicate = NSPredicate(format: "NOT (id IN %@)", completedTrackerId)
-        updateFRC(predicate: predicate)
+    func getInCompleteTrackersWithID(completedTrackerId: [String], weekDay: String) {
+        let predicate1 = NSPredicate(format: "NOT (id IN %@)", completedTrackerId)
+        let predicate2 = NSPredicate(format: "schedule CONTAINS %@", weekDay)
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1, predicate2])
+        updateFRC(predicate: compoundPredicate)
     }
-
 
     private func updateFRC(predicate: NSPredicate, sort: NSSortDescriptor = NSSortDescriptor(key: "category.header", ascending: true)) {
         guard let trackersFRC else { print("🟥 NSFetchedResultsController is nil")

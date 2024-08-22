@@ -14,8 +14,8 @@ final class FilterViewModel: CategoryViewModelProtocol {
     private let filtered = [
         "allTrackers".localizedString,
         "todayTrackers".localizedString,
-        "closed".localizedString,
-        "notClosed".localizedString
+        "completed".localizedString,
+        "inComplete".localizedString
     ]
     
     var dataUpdated: (() -> Void)?

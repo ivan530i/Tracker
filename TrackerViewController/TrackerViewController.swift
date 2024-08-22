@@ -5,7 +5,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
     private lazy var noTrackersPlaceholder = CustomPlaceholder(labelText: "emptyTracker".localizedString, imageName: "mockImage")
 
     private lazy var searchNoTrackersPlaceholder = CustomPlaceholder(labelText: "emptySearch".localizedString, imageName: "nothingImg")
-    
+
     private lazy var searchController: UISearchController = {
         let search = UISearchController(searchResultsController: nil)
         search.searchResultsUpdater = self
@@ -102,7 +102,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         getTrackersFromCD()
         updateWeekDay()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         analyticsService.report("open", params: ["screen": "Main"])
@@ -165,9 +165,6 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         let weekDay = MainHelper.getWeekdayFromCurrentDate(currentDate: currentDate)
         dataManager.getdataFromCoreData(weekday: weekDay)
         showOrHidePlaceholder()
-        
-        dataManager.printAllTrackersInCoreData()
-        dataManager.printAllTrackerRecords()
     }
     
     private func setupNotification() {
@@ -223,7 +220,6 @@ final class TrackerViewController: UIViewController, UICollectionViewDelegate {
         navigationItem.rightBarButtonItem = rightButton
 
         navigationItem.searchController = searchController
-        navigationItem.hidesSearchBarWhenScrolling = false
     }
 }
 
@@ -372,13 +368,12 @@ extension TrackerViewController {
 extension TrackerViewController: FilterViewControllerProtocol {
     func showFilteredTrackers() {
         let filter = dataManager.getSelectedFilter()
-        print(dataManager.getSelectedFilter())
 
         switch filter {
         case "allTrackers".localizedString: getAllTrackersForDate()
         case "todayTrackers".localizedString: getTodayTrackers()
-        case "closed".localizedString: getCompletedTrackers()
-        case "notClosed".localizedString: getInCompletedTrackers()
+        case "completed".localizedString: getCompletedTrackers()
+        case "inComplete".localizedString: getInCompletedTrackers()
         default: print("Smth's going wrong!")
         }
 
@@ -403,14 +398,13 @@ extension TrackerViewController: FilterViewControllerProtocol {
 
     private func getInCompletedTrackers() {
         let completedTrackersID = getCompletedTrackersID()
-        dataManager.getInCompletedTrackersWithID(completedTrackerId: completedTrackersID)
+        dataManager.getInCompleteTrackersWithID(completedTrackerId: completedTrackersID, weekDay: weekDay)
     }
 
     private func getCompletedTrackersID() -> [String] {
         let completedTrackers =
         dataManager.getAllTrackerRecordForDate(date: currentDate)
         let completedTrackersID = completedTrackers.compactMap { $0 }
-        print("completedTrackersID: \(completedTrackersID)")
         return completedTrackersID
     }
 }

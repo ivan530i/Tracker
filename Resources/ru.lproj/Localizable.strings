@@ -63,8 +63,8 @@
 "filters" = "Фильтры";
 "allTrackers" = "Все трекеры";
 "todayTrackers" = "Трекеры на сегодня";
-"closed" = "Завершенные";
-"notClosed" = "Не завершенные";
+"completed" = "Завершенные";
+"inComplete" = "Незавершенные";
 
 //StatisticViewController
 "emptyStat" = "Анализировать пока нечего";

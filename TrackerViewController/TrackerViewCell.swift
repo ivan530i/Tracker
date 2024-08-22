@@ -1,5 +1,4 @@
 import UIKit
-import YandexMobileMetrica
 
 protocol TrackerViewCellDelegate: AnyObject {
     func pinOrUnpinTracker(id: UUID)
@@ -196,10 +195,12 @@ extension TrackerViewCell: UIContextMenuInteractionDelegate {
             
             let editAction = UIAction(title: NSLocalizedString("edit", comment: "Edit tracker")) { [weak self] _ in
                 self?.delegate?.editTracker(id: trackerId)
+                self?.analyticsService.report("editTrackerButtonTapped", params: ["event": "click", "screen": "Main", "item": "edit"])
             }
             
             let deleteAction = UIAction(title: NSLocalizedString("delete", comment: "Delete tracker"), attributes: .destructive) { [weak self] _ in
                 self?.delegate?.deleteTracker(id: trackerId)
+                self?.analyticsService.report("deleteTrackerButtonTapped", params: ["event": "click", "screen": "Main", "item": "delete"])
             }
             
             return UIMenu(title: "", children: [pinAction, editAction, deleteAction])

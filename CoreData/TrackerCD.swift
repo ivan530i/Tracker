@@ -15,10 +15,10 @@ public class TrackerCD: NSManagedObject {
     @NSManaged public var schedule: String?
     @NSManaged public var category: TrackerCategoryCD?
     @NSManaged public var record: TrackerRecordCD?
-    
+    @NSManaged public var isPinned: Bool
+    @NSManaged public var initialCategory: String?
 }
 
 extension TrackerCD : Identifiable {
     
 }
-

@@ -8,7 +8,7 @@ final class CreateCategoryVC: UIViewController {
     
     private lazy var confirmButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle("ready".localizedString, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.tintColor = .ypWhite
         button.backgroundColor = .ypBlack
@@ -20,7 +20,7 @@ final class CreateCategoryVC: UIViewController {
     
     private lazy var trackerTextField: UITextField = {
         var textField = UITextField()
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = "categoryName".localizedString
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.layer.cornerRadius = 16
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
@@ -58,7 +58,7 @@ final class CreateCategoryVC: UIViewController {
     }
     
     private func setupNavigationController() {
-        title = "Новая категория"
+        title = "newCategory".localizedString
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
         navigationController?.navigationBar.titleTextAttributes = attributes

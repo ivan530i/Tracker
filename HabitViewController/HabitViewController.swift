@@ -2,6 +2,9 @@ import UIKit
 
 final class HabitViewController: UIViewController {
     
+    private var trackerId: UUID?
+    private var isEditingMode = false
+    
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.textColor = .ypBlack
@@ -9,7 +12,7 @@ final class HabitViewController: UIViewController {
         let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textField.frame.height))
         textField.leftView = leftView
         textField.leftViewMode = .always
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = "trackerName".localizedString
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
@@ -47,7 +50,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var restrictionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = "restrictionOf38".localizedString
         label.textColor = .ypRed
         label.font = .systemFont(ofSize: 17)
         label.isHidden = true
@@ -58,7 +61,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle("cancel".localizedString, for: .normal)
         button.backgroundColor = .ypWhite
         button.tintColor = .ypRed
         button.layer.cornerRadius = 16
@@ -71,7 +74,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         var button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
+        button.setTitle("create".localizedString, for: .normal)
         button.backgroundColor = .ypGray
         button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
@@ -105,10 +108,7 @@ final class HabitViewController: UIViewController {
     
     private var selectedCategory = ""
     
-    private lazy var habit: [(name: String, pickedSettings: String)] = [
-        (name: "Категория", pickedSettings: ""),
-        (name: "Расписание", pickedSettings: "")
-    ]
+    private lazy var habit: [(name: String, pickedSettings: String)] = ["category", "schedule"].map({ return ($0.localizedString, "")})
     
     private let dataManager = CoreDataManager.shared
     
@@ -121,12 +121,42 @@ final class HabitViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    init(trackerId: UUID?) {
+        self.trackerId = trackerId
+        self.isEditingMode = trackerId != nil
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationController()
         setViews()
         setupCollectionsDataBinding()
         setupScrollView()
+        
+        if isEditingMode {
+            loadTrackerData()
+        }
+    }
+    
+    private func loadTrackerData() {
+        guard let trackerId = trackerId else { return }
+        
+        if let tracker = dataManager.fetchTracker(by: trackerId) {
+            textField.text = tracker.name
+            
+            selectedColor = tracker.colorHex ?? ""
+            selectedEmoji = tracker.emoji ?? ""
+            
+            habit[1].pickedSettings = tracker.schedule ?? ""
+            
+            if let category = tracker.category {
+                selectedCategory = category.header ?? ""
+            } else {
+                selectedCategory = ""
+            }
+            checkIfCorrect()
+        }
     }
     
     @objc private func clearTextFieldButtonClicked() {
@@ -153,7 +183,10 @@ final class HabitViewController: UIViewController {
     }
     
     @objc private func createButtonClicked() {
-        createNewTracker()
+        if isEditingMode {
+        } else {
+            createNewTracker()
+        }
         returnToMainScreen()
     }
     
@@ -177,7 +210,12 @@ final class HabitViewController: UIViewController {
     }
     
     private func setupNavigationController() {
-        title = "Новая привычка"
+        let text = isEditingMode ? "editHabit" : "newHabit"
+        let setTitle = isEditingMode ? "save" : "create"
+        
+        title = text.localizedString
+        createButton.setTitle(setTitle.localizedString, for: .normal)
+        
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)]
         navigationController?.navigationBar.titleTextAttributes = attributes
@@ -188,15 +226,9 @@ final class HabitViewController: UIViewController {
     }
     
     private func checkIfCorrect() {
-        if areAllFieldsFilled() {
-            print("YES")
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-        } else {
-            print("NO")
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-        }
+        let isOn = areAllFieldsFilled()
+        createButton.isEnabled = isOn
+        createButton.backgroundColor = isOn ? .ypBlack : .ypGray
     }
     
     private func areAllFieldsFilled() -> Bool {
@@ -331,7 +363,6 @@ extension HabitViewController {
     func setupScrollView() {
         
         let screenScrollView = UIScrollView()
-        
         view.addSubViews([screenScrollView])
         
         NSLayoutConstraint.activate([

@@ -1,0 +1,80 @@
+//OnboardingVC
+"onboardingOne" = "Track only what you want";
+"onboardingTwo" = "Even if it's not liters of water and yoga";
+"onboardingButton" = "This is technology!";
+
+//TabBarVC
+"trackerText" = "Trackers";
+"statisticsText" = "Statistics";
+
+//TrackerViewController
+"emptyTracker" = "What will we track?";
+"emptySearch" = "Nothing found";
+"search" = "Search";
+"filters" = "Filters";
+
+//HabitOrEventVC
+"createTracker" = "Creating a tracker";
+"habit" = "Habit";
+"event" = "Irregular event";
+
+//HabitViewController
+"trackerName" = "Enter tracker name";
+"cancel" = "Cancel";
+"create" = "Create";
+"category" = "Category";
+"schedule" = "Schedule";
+"newHabit" = "New habit";
+"save" = "Save";
+"editHabit" = "Edit Habit";
+"restrictionOf38" = "38 character limit";
+"mon" = "Mon";
+"tues" = "Tues";
+"wed" = "Wed";
+"thurs" = "Thurs";
+"fri" = "Fri";
+"sat" = "Sat";
+"sun" = "Sun";
+"color" = "Colour";
+
+//AllCategoriesVC
+"categoryPlaceHolder" = "Habits and events can be combined by meaning";
+"addCategory" = "Add category";
+"allCategories" = "Category";
+
+//CreateCategoryVC
+"ready" = "Done";
+"categoryName" = "Enter category name";
+"newCategory" = "New category";
+
+//ScheduleVC
+"schedule" = "Schedule";
+"ready" = "Done";
+"monday" = "Monday";
+"tuesday" = "Tuesday";
+"wednesday" = "Wednesday";
+"thursday" = "Thursday";
+"friday" = "Friday";
+"saturday" = "Saturday";
+"sunday" = "Sunday";
+
+//FilterViewController
+"filters" = "Filters";
+"allTrackers" = "All trackers";
+"todayTrackers" = "Trackers for today";
+"closed" = "Completed";
+"notClosed" = "Not completed";
+
+//StatisticViewController
+"emptyStat" = "There is nothing to analyze yet";
+"finishedTrackers" = "Trackers completed";
+"statistics" = "Statistics";
+
+//ContextMenu
+"pin" = "Pin";
+"unpin" = "UnPin";
+"edit" = "Edit";
+"delete" = "Delete";
+
+//IrregularEventViewController
+"newEvent" = "New irregular event";

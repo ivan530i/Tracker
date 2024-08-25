@@ -1,0 +1,82 @@
+//OnboardingVC
+"onboardingOne" = "Отслеживайте только то, что хотите";
+"onboardingTwo" = "Даже если это не литры воды и йога";
+"onboardingButton" = "Вот это технологии!";
+
+//TabBarVC
+"trackerText" = "Трекеры";
+"statisticsText" = "Статистика";
+
+//TrackerViewController
+"emptyTracker" = "Что будем отслеживать?";
+"emptySearch" = "Ничего не найдено";
+"search" = "Поиск";
+"filters" = "Фильтры";
+"Do you really want to delete the Tracker" = "Уверены, что хотите удалить трекер";
+
+//HabitOrEventVC
+"createTracker" = "Создание трекера";
+"habit" = "Привычка";
+"event" = "Нерегулярное событие";
+
+//HabitViewController
+"trackerName" = "Введите название трекера";
+"cancel" = "Отменить";
+"create" = "Создать";
+"category" = "Категория";
+"schedule" = "Расписание";
+"newHabit" = "Новая привычка";
+"save" = "Сохранить";
+"editHabit" = "Редактировать привычку";
+"restrictionOf38" = "Ограничение 38 символов";
+"mon" = "Пн";
+"tues" = "Вт";
+"wed" = "Ср";
+"thurs" = "Чт";
+"fri" = "Пт";
+"sat" = "Сб";
+"sun" = "Вс";
+"color" = "Цвет";
+
+//AllCategoriesVC
+"categoryPlaceHolder" = "Привычки и события можно \nобъединить по смыслу";
+"addCategory" = "Добавить категорию";
+"allCategories" = "Категория";
+
+//CreateCategoryVC
+"ready" = "Готово";
+"categoryName" = "Введите название категории";
+"newCategory" = "Новая категория";
+
+//ScheduleVC
+"schedule" = "Расписание";
+"ready" = "Готово";
+"monday" = "Понедельник";
+"tuesday" = "Вторник";
+"wednesday" = "Среда";
+"thursday" = "Четверг";
+"friday" = "Пятница";
+"saturday" = "Суббота";
+"sunday" = "Воскресенье";
+
+//FilterViewController
+"filters" = "Фильтры";
+"allTrackers" = "Все трекеры";
+"todayTrackers" = "Трекеры на сегодня";
+"completed" = "Завершенные";
+"inComplete" = "Незавершенные";
+
+//StatisticViewController
+"emptyStat" = "Анализировать пока нечего";
+"finishedTrackers" = "Трекеров завершено";
+"statistics" = "Статистика";
+
+//ContextMenu
+"pin" = "Закрепить";
+"unpin" = "Открепить";
+"edit" = "Редактировать";
+"delete" = "Удалить";
+
+//IrregularEventViewController
+"newEvent" = "Новое нерегулярное событие";
+"Editing the tracker" = "Редактирование привычки";

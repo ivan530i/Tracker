@@ -3,7 +3,7 @@ import UIKit
 final class CustomPlaceholder: UIStackView {
     
     private lazy var placeholderImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "stubIMG"))
+        let imageView = UIImageView()
         imageView.heightAnchor.constraint(equalToConstant: 80).isActive = true
         imageView.widthAnchor.constraint(equalToConstant: 80).isActive = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -12,7 +12,6 @@ final class CustomPlaceholder: UIStackView {
     
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно \nобъединить по смыслу"
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2
         label.textAlignment = .center
@@ -21,13 +20,10 @@ final class CustomPlaceholder: UIStackView {
         return label
     }()
     
-    var labelText: String
-    var imageName: String
-    
-    init(labelText: String = "Привычки и события можно \nобъединить по смыслу", imageName: String = "stubIMG") {
-        self.labelText = labelText
-        self.imageName = imageName
+    init(labelText: String = "categoryPlaceHolder".localizedString, imageName: String = "stubIMG") {
         super.init(frame: .zero)
+        self.placeholderLabel.text = labelText
+        self.placeholderImageView.image = UIImage(named: imageName)
         setupPlaceholder()
     }
     
@@ -49,6 +45,8 @@ final class CustomPlaceholder: UIStackView {
     }
     
     func setupLayout(_ view: UIView) {
+        view.addSubViews([self])
+        
         NSLayoutConstraint.activate([
             centerYAnchor.constraint(equalTo: view.centerYAnchor),
             centerXAnchor.constraint(equalTo: view.centerXAnchor)
